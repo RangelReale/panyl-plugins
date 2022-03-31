@@ -8,6 +8,7 @@ import (
 )
 
 type AnsiLog struct {
+	ShowSource bool
 }
 
 func (l AnsiLog) LogSourceLine(n int, line, rawLine string) {
@@ -45,7 +46,7 @@ func (l AnsiLog) LogProcess(p *panyl.Process) {
 		_, _ = buf.WriteString(fmt.Sprintf("Line: \"%s\"", p.Line))
 	}
 
-	if len(p.Source) > 0 {
+	if l.ShowSource && len(p.Source) > 0 {
 		if buf.Len() > 0 {
 			_, _ = buf.WriteString(" - ")
 		}
