@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/RangelReale/panyl"
-	"github.com/RangelReale/panyl/plugins/clean"
+	"github.com/RangelReale/panyl/util"
 	"github.com/fatih/color"
 )
 
@@ -51,7 +51,7 @@ func (l AnsiLog) LogProcess(p *panyl.Process) {
 		if buf.Len() > 0 {
 			_, _ = buf.WriteString(" - ")
 		}
-		_, _ = buf.WriteString(fmt.Sprintf("Source: \"%s\"", clean.DoAnsiEscapeString(p.Source)))
+		_, _ = buf.WriteString(fmt.Sprintf("Source: \"%s\"", util.DoAnsiEscapeString(p.Source)))
 	}
 
 	green.Printf("*** PROCESS LINE %s: %s\n", lineno, buf.String())
