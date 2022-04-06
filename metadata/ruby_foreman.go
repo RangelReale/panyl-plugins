@@ -20,7 +20,7 @@ type RubyForeman struct {
 
 // example: "16:41:59 api.1         | log text"
 
-var rubyForemanPrefixRE = regexp.MustCompile(`^(\d{2}:\d{2}:\d{2})\s([\w.]+)\s+\|\s(.*)$`)
+var rubyForemanPrefixRE = regexp.MustCompile(`^(\d{2}:\d{2}:\d{2})\s([\w.]+)\s+\|(.*)$`)
 
 func (m *RubyForeman) ExtractMetadata(result *panyl.Process) (bool, error) {
 	matches := rubyForemanPrefixRE.FindStringSubmatch(result.Line)
