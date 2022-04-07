@@ -30,7 +30,7 @@ func (C NGINXJsonLog) ParseFormat(result *panyl.Process) (bool, error) {
 				result.Metadata[panyl.Metadata_Timestamp] = ts
 			}
 
-			level := panyl.MetadataLevel_DEBUG
+			level := panyl.MetadataLevel_INFO
 			if hsc := result.Data.StringValue("http_status_code"); hsc != "" {
 				hscn, err := strconv.ParseInt(hsc, 10, 32)
 				if err == nil {
@@ -60,6 +60,9 @@ func (C NGINXJsonLog) ParseFormat(result *panyl.Process) (bool, error) {
 					result.Data.StringValue("upstream_addr"),
 					result.Data.StringValue("upstream_status"),
 				)
+			}
+			if result.Data.HasValue("proxy_host") {
+				message = fmt.Sprintf("%s {proxy host:%s}", message, result.Data.StringValue("proxy_host"))
 			}
 
 			if logmessage := result.Data.StringValue("message"); message != "" {

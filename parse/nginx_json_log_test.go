@@ -26,6 +26,11 @@ func TestNGINXJSONLog(t *testing.T) {
 			level:   panyl.MetadataLevel_WARNING,
 			message: "GET localhost:5000/environments.json [status:304] -> upstream 172.18.0.30:3500 [status:304]",
 		},
+		{
+			source:  `{"host":"localhost","request_method":"GET","status":"200","bytes_sent":"129299","message":"nginx request to /dashboard completed in 0.000 seconds","http_host":"localhost:5000","response_header_size":443,"nginx_time":"1649343527.265","http_response_size":"128856","uri":"/dashboard","now":"2022-04-07T14:58:47+00:00","request_length":"2979","proxy_host":"s3.amazonaws.com","http_response_time_s":"0.000","http_user_agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.75 Safari/537.36","http_request_method":"GET","http_request_path":"/dashboard","request_time":"0.000","http_request_length":"2979","request_header_size":2979,"remote_addr":"172.18.0.1","sent_http_content_type":"text/html; charset=utf-8","upstream_cache_status":"HIT","http_status_code":"200","body_bytes_sent":"128856"}`,
+			level:   panyl.MetadataLevel_INFO,
+			message: "GET localhost:5000/dashboard [status:200]",
+		},
 	}
 
 	JSON := &structure.JSON{}
