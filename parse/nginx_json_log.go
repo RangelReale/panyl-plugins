@@ -34,7 +34,7 @@ func (C NGINXJsonLog) ParseFormat(result *panyl.Process) (bool, error) {
 			if hsc := result.Data.StringValue("http_status_code"); hsc != "" {
 				hscn, err := strconv.ParseInt(hsc, 10, 32)
 				if err == nil {
-					if hscn >= 300 {
+					if hscn >= 400 {
 						if hscn >= 500 {
 							level = panyl.MetadataLevel_ERROR
 						} else {
