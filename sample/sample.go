@@ -75,3 +75,5 @@ func (o *Output) OnResult(p *panyl.Process) (cont bool) {
 	fmt.Println(out.String())
 	return true
 }
+
+func (o *Output) OnFlush() {}
