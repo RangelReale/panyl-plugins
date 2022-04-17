@@ -9,8 +9,9 @@ import (
 var _ panyl.PluginMetadata = (*RubyForeman)(nil)
 var _ panyl.PluginSequence = (*RubyForeman)(nil)
 
-// RubyForeman extracts application name from the line by the docker compose format, which is an application
-// name followed by | at the beginning of the line.
+// RubyForeman extracts application name from the line by the roby foreman format, which is 
+// a time, followed by an application
+// name, followed by | at the beginning of the line.
 // It also signals a sequence break on lines of different applications.
 // If ApplicationWhitelist is not nil, only applications on this list will be considered.
 type RubyForeman struct {
