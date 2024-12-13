@@ -3,7 +3,7 @@ module github.com/RangelReale/panyl-plugins
 go 1.23
 
 require (
-	github.com/RangelReale/panyl v0.9.1
+	github.com/RangelReale/panyl v0.9.2
 	github.com/stretchr/testify v1.10.0
 )
 
