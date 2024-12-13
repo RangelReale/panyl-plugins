@@ -13,7 +13,12 @@ type DetectJSON struct{}
 
 // example: {"cluster.name":"docker-cluster","component":"o.e.t.TransportService","level":"INFO","message":"publish_address {172.18.0.4:9300}, bound_addresses {0.0.0.0:9300}","node.name":"3404ffa7b26c","timestamp":"2022-04-13T17:24:56,134Z","type":"server"}
 
-func (C DetectJSON) ParseFormat(result *panyl.Process) (bool, error) {
+func (c DetectJSON) ParseFormat(result *panyl.Process) (bool, error) {
+	if result.Metadata.HasValue(panyl.Metadata_Format) {
+		// already has a known format
+		return false, nil
+	}
+
 	// only if json
 	if result.Metadata.StringValue(panyl.Metadata_Structure) == panyl.MetadataStructure_JSON {
 		// timestamp
@@ -71,4 +76,4 @@ func (C DetectJSON) ParseFormat(result *panyl.Process) (bool, error) {
 	return false, nil
 }
 
-func (C DetectJSON) IsPanylPlugin() {}
+func (c DetectJSON) IsPanylPlugin() {}
