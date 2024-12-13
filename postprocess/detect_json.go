@@ -75,7 +75,7 @@ func (p DetectJSON) PostProcess(result *panyl.Process) (bool, error) {
 }
 
 func (p DetectJSON) PostProcessOrder() int {
-	return panyl.PostProcessOrder_Last
+	return panyl.PostProcessOrder_First + 1
 }
 
 func (p DetectJSON) IsPanylPlugin() {}
