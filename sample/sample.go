@@ -4,18 +4,18 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"os"
+	"time"
+
 	"github.com/RangelReale/panyl"
 	"github.com/RangelReale/panyl-plugins/metadata"
 	"github.com/RangelReale/panyl-plugins/parse"
 	"github.com/RangelReale/panyl/plugins/clean"
 	"github.com/RangelReale/panyl/plugins/structure"
-	"os"
-	"time"
 )
 
 func main() {
 	processor := panyl.NewProcessor(
-		panyl.WithLineLimit(0, 100),
 		panyl.WithPlugins(
 			&clean.AnsiEscape{},
 			&metadata.DockerCompose{},
@@ -29,7 +29,7 @@ func main() {
 		// panyl.WithLogger(panyl.NewStdLogOutput()),
 	)
 
-	err := processor.Process(os.Stdin, &Output{})
+	err := processor.Process(os.Stdin, &Output{}, panyl.WithLineLimit(0, 100))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error processing input: %s", err.Error())
 	}
