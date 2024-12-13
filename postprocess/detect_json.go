@@ -1,4 +1,4 @@
-package parseformat
+package postprocess
 
 import (
 	"strings"
@@ -7,13 +7,11 @@ import (
 	"github.com/RangelReale/panyl"
 )
 
-var _ panyl.PluginParseFormat = (*DetectJSON)(nil)
+var _ panyl.PluginPostProcess = (*DetectJSON)(nil)
 
 type DetectJSON struct{}
 
-// example: {"cluster.name":"docker-cluster","component":"o.e.t.TransportService","level":"INFO","message":"publish_address {172.18.0.4:9300}, bound_addresses {0.0.0.0:9300}","node.name":"3404ffa7b26c","timestamp":"2022-04-13T17:24:56,134Z","type":"server"}
-
-func (c DetectJSON) ParseFormat(result *panyl.Process) (bool, error) {
+func (p DetectJSON) PostProcess(result *panyl.Process) (bool, error) {
 	if result.Metadata.HasValue(panyl.Metadata_Format) {
 		// already has a known format
 		return false, nil
@@ -76,4 +74,8 @@ func (c DetectJSON) ParseFormat(result *panyl.Process) (bool, error) {
 	return false, nil
 }
 
-func (c DetectJSON) IsPanylPlugin() {}
+func (p DetectJSON) PostProcessOrder() int {
+	return panyl.PostProcessOrder_Last
+}
+
+func (p DetectJSON) IsPanylPlugin() {}
