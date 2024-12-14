@@ -1,9 +1,11 @@
 package parse
 
 import (
-	"github.com/RangelReale/panyl"
+	"context"
 	"regexp"
 	"time"
+
+	"github.com/RangelReale/panyl"
 )
 
 var _ panyl.PluginParse = (*RedisLog)(nil)
@@ -22,7 +24,7 @@ var (
 )
 
 // https://github.com/redis/redis/issues/2545#issuecomment-97270522
-func (m *RedisLog) ExtractParse(lines panyl.ProcessLines, result *panyl.Process) (bool, error) {
+func (m *RedisLog) ExtractParse(ctx context.Context, lines panyl.ProcessLines, result *panyl.Process) (bool, error) {
 	// Only single line is supported
 	if len(lines) != 1 {
 		return false, nil

@@ -1,17 +1,21 @@
 package metadata
 
 import (
+	"context"
+	"testing"
+
 	"github.com/RangelReale/panyl"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestDockerCompose(t *testing.T) {
+	ctx := context.Background()
+
 	result := panyl.InitProcess()
 	result.Line = "application    | my log here"
 
 	plugin := &DockerCompose{}
-	ok, err := plugin.ExtractMetadata(result)
+	ok, err := plugin.ExtractMetadata(ctx, result)
 	assert.NoError(t, err)
 	assert.True(t, ok)
 

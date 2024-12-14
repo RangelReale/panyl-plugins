@@ -1,9 +1,11 @@
 package parse
 
 import (
-	"github.com/RangelReale/panyl"
+	"context"
 	"regexp"
 	"time"
+
+	"github.com/RangelReale/panyl"
 )
 
 var _ panyl.PluginParse = (*PostgresLog)(nil)
@@ -21,7 +23,7 @@ var (
 	postgresTimestampFormat = "2006-01-02 15:04:05.000"
 )
 
-func (m *PostgresLog) ExtractParse(lines panyl.ProcessLines, result *panyl.Process) (bool, error) {
+func (m *PostgresLog) ExtractParse(ctx context.Context, lines panyl.ProcessLines, result *panyl.Process) (bool, error) {
 	// Only single line is supported
 	if len(lines) != 1 {
 		return false, nil
@@ -59,10 +61,8 @@ func (m *PostgresLog) ExtractParse(lines panyl.ProcessLines, result *panyl.Proce
 	}
 
 	// https://www.postgresql.org/docs/current/runtime-config-logging.html
-	if level == "ERROR" {
+	if level == "ERROR" || level == "FATAL" || level == "PANIC" {
 		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelERROR
-	} else if level == "FATAL" || level == "PANIC" {
-		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevel_FATAL
 	} else if level == "WARNING" {
 		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelWARNING
 	} else if level == "DEBUG" {

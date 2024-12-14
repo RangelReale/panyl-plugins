@@ -1,8 +1,10 @@
 package parseformat
 
 import (
-	"github.com/RangelReale/panyl"
+	"context"
 	"time"
+
+	"github.com/RangelReale/panyl"
 )
 
 var _ panyl.PluginParseFormat = (*ElasticSearchJSON)(nil)
@@ -18,7 +20,7 @@ var (
 	elasticSearchTimestampFormat = "2006-01-02T15:04:05,000Z07:00"
 )
 
-func (C ElasticSearchJSON) ParseFormat(result *panyl.Process) (bool, error) {
+func (C ElasticSearchJSON) ParseFormat(ctx context.Context, result *panyl.Process) (bool, error) {
 	// only if json
 	if result.Metadata.StringValue(panyl.MetadataStructure) == panyl.MetadataStructureJSON {
 		if result.Data.HasValue("timestamp") && result.Data.HasValue("cluster.name") &&
@@ -42,9 +44,7 @@ func (C ElasticSearchJSON) ParseFormat(result *panyl.Process) (bool, error) {
 
 			// https://www.elastic.co/guide/en/elasticsearch/reference/current/logging.html
 			switch level {
-			case "OFF", "FATAL":
-				result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevel_FATAL
-			case "ERROR":
+			case "ERROR", "OFF", "FATAL":
 				result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelERROR
 			case "WARN":
 				result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelWARNING

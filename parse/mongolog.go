@@ -1,9 +1,11 @@
 package parse
 
 import (
-	"github.com/RangelReale/panyl"
+	"context"
 	"regexp"
 	"time"
+
+	"github.com/RangelReale/panyl"
 )
 
 var _ panyl.PluginParse = (*MongoLog)(nil)
@@ -21,7 +23,7 @@ var (
 	mongoTimestampFormat = "2006-01-02T15:04:05.999999999-0700"
 )
 
-func (m *MongoLog) ExtractParse(lines panyl.ProcessLines, result *panyl.Process) (bool, error) {
+func (m *MongoLog) ExtractParse(ctx context.Context, lines panyl.ProcessLines, result *panyl.Process) (bool, error) {
 	// Only single line is supported
 	if len(lines) != 1 {
 		return false, nil

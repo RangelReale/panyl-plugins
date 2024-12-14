@@ -1,9 +1,11 @@
 package parse
 
 import (
+	"context"
+	"testing"
+
 	"github.com/RangelReale/panyl"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestGoLog(t *testing.T) {
@@ -24,10 +26,12 @@ func TestGoLog(t *testing.T) {
 	}
 
 	for _, tc := range tests {
+		ctx := context.Background()
+
 		result := panyl.InitProcess()
 
 		p := &GoLog{SourceAsCategory: true}
-		ok, err := p.ExtractParse(panyl.ProcessLines{&panyl.Process{Line: tc.source}}, result)
+		ok, err := p.ExtractParse(ctx, panyl.ProcessLines{&panyl.Process{Line: tc.source}}, result)
 		assert.NoError(t, err)
 		assert.True(t, ok)
 

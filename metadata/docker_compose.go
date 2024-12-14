@@ -1,13 +1,12 @@
 package metadata
 
 import (
-	"github.com/RangelReale/panyl"
+	"context"
 	"regexp"
 	"strings"
-)
 
-var _ panyl.PluginMetadata = (*DockerCompose)(nil)
-var _ panyl.PluginSequence = (*DockerCompose)(nil)
+	"github.com/RangelReale/panyl"
+)
 
 // DockerCompose extracts application name from the line by the docker compose format, which is an application
 // name followed by | at the beginning of the line.
@@ -18,11 +17,14 @@ type DockerCompose struct {
 	ApplicationWhitelist []string
 }
 
+var _ panyl.PluginMetadata = (*DockerCompose)(nil)
+var _ panyl.PluginSequence = (*DockerCompose)(nil)
+
 // example: "application    |"
 
 var dockerPrefixRE = regexp.MustCompile(`^(\w|[-])+\s+\|`)
 
-func (m *DockerCompose) ExtractMetadata(result *panyl.Process) (bool, error) {
+func (m *DockerCompose) ExtractMetadata(ctx context.Context, result *panyl.Process) (bool, error) {
 	matches := dockerPrefixRE.FindStringSubmatchIndex(result.Line)
 	if matches == nil {
 		return false, nil
@@ -56,7 +58,7 @@ func (m *DockerCompose) ExtractMetadata(result *panyl.Process) (bool, error) {
 	return true, nil
 }
 
-func (m *DockerCompose) BlockSequence(lastp, p *panyl.Process) bool {
+func (m *DockerCompose) BlockSequence(ctx context.Context, lastp, p *panyl.Process) bool {
 	// block sequence if application changed
 	return lastp.Metadata.StringValue(panyl.MetadataApplication) != p.Metadata.StringValue(panyl.MetadataApplication)
 }

@@ -1,6 +1,7 @@
 package postprocess
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/RangelReale/panyl"
@@ -11,7 +12,7 @@ var _ panyl.PluginPostProcess = (*DebugFormat)(nil)
 type DebugFormat struct {
 }
 
-func (p DebugFormat) PostProcess(result *panyl.Process) (bool, error) {
+func (p DebugFormat) PostProcess(ctx context.Context, result *panyl.Process) (bool, error) {
 	if message := result.Metadata.StringValue(panyl.MetadataMessage); message != "" {
 		result.Metadata[panyl.MetadataMessage] = fmt.Sprintf("[[fmt:%s]] %s",
 			result.Metadata.StringValue(panyl.MetadataFormat), message)

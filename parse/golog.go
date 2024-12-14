@@ -1,10 +1,12 @@
 package parse
 
 import (
-	"github.com/RangelReale/panyl"
+	"context"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/RangelReale/panyl"
 )
 
 var _ panyl.PluginParse = (*GoLog)(nil)
@@ -20,7 +22,7 @@ type GoLog struct {
 
 var goLogRe = regexp.MustCompile(`^(\d{4}-\d{2}-\d{2}T[^\s]+)\s+(\w+)\s+(.*\.go:\d+)\s+(.*)$`)
 
-func (m *GoLog) ExtractParse(lines panyl.ProcessLines, result *panyl.Process) (bool, error) {
+func (m *GoLog) ExtractParse(ctx context.Context, lines panyl.ProcessLines, result *panyl.Process) (bool, error) {
 	// Only single line is supported
 	if len(lines) != 1 {
 		return false, nil

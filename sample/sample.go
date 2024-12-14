@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -15,6 +16,8 @@ import (
 )
 
 func main() {
+	ctx := context.Background()
+
 	processor := panyl.NewProcessor(
 		panyl.WithPlugins(
 			&clean.AnsiEscape{},
@@ -29,7 +32,7 @@ func main() {
 		// panyl.WithLogger(panyl.NewStdLogOutput()),
 	)
 
-	err := processor.Process(os.Stdin, &Output{}, panyl.WithLineLimit(0, 100))
+	err := processor.Process(ctx, os.Stdin, &Output{}, panyl.WithLineLimit(0, 100))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error processing input: %s", err.Error())
 	}
@@ -38,7 +41,7 @@ func main() {
 type Output struct {
 }
 
-func (o *Output) OnResult(p *panyl.Process) (cont bool) {
+func (o *Output) OnResult(ctx context.Context, p *panyl.Process) (cont bool) {
 	var out bytes.Buffer
 
 	// timestamp
@@ -76,6 +79,6 @@ func (o *Output) OnResult(p *panyl.Process) (cont bool) {
 	return true
 }
 
-func (o *Output) OnFlush() {}
+func (o *Output) OnFlush(ctx context.Context) {}
 
-func (o *Output) OnClose() {}
+func (o *Output) OnClose(ctx context.Context) {}

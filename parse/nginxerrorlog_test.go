@@ -1,10 +1,12 @@
 package parse
 
 import (
-	"github.com/RangelReale/panyl"
-	"github.com/stretchr/testify/assert"
+	"context"
 	"strings"
 	"testing"
+
+	"github.com/RangelReale/panyl"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNGINXErrorLog(t *testing.T) {
@@ -25,10 +27,11 @@ func TestNGINXErrorLog(t *testing.T) {
 	}
 
 	for _, tc := range tests {
+		ctx := context.Background()
 		result := panyl.InitProcess()
 
 		p := &NGINXErrorLog{}
-		ok, err := p.ExtractParse(panyl.ProcessLines{&panyl.Process{Line: tc.source}}, result)
+		ok, err := p.ExtractParse(ctx, panyl.ProcessLines{&panyl.Process{Line: tc.source}}, result)
 		assert.NoError(t, err)
 		assert.True(t, ok)
 

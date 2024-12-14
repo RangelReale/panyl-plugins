@@ -1,10 +1,12 @@
 package parse
 
 import (
+	"context"
 	"fmt"
-	"github.com/RangelReale/panyl"
 	"strconv"
 	"time"
+
+	"github.com/RangelReale/panyl"
 )
 
 var _ panyl.PluginParseFormat = (*NGINXJsonLog)(nil)
@@ -20,7 +22,7 @@ var (
 	nginxTimestampFormat = "2006-01-02T15:04:05Z07:00"
 )
 
-func (C NGINXJsonLog) ParseFormat(result *panyl.Process) (bool, error) {
+func (C NGINXJsonLog) ParseFormat(ctx context.Context, result *panyl.Process) (bool, error) {
 	if result.Metadata.StringValue(panyl.MetadataStructure) == panyl.MetadataStructureJSON {
 		if result.Data.HasValue("http_request_path") && result.Data.HasValue("http_status_code") &&
 			result.Data.HasValue("nginx_time") && result.Data.HasValue("now") {

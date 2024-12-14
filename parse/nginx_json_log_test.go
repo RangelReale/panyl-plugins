@@ -1,11 +1,13 @@
 package parse
 
 import (
+	"context"
+	"strings"
+	"testing"
+
 	"github.com/RangelReale/panyl"
 	"github.com/RangelReale/panyl/plugins/structure"
 	"github.com/stretchr/testify/assert"
-	"strings"
-	"testing"
 )
 
 func TestNGINXJSONLog(t *testing.T) {
@@ -36,13 +38,14 @@ func TestNGINXJSONLog(t *testing.T) {
 	JSON := &structure.JSON{}
 
 	for _, tc := range tests {
+		ctx := context.Background()
 		result := panyl.InitProcess()
-		ok, err := JSON.ExtractStructure(panyl.ProcessLines{&panyl.Process{Line: tc.source}}, result)
+		ok, err := JSON.ExtractStructure(ctx, panyl.ProcessLines{&panyl.Process{Line: tc.source}}, result)
 		assert.NoError(t, err)
 		assert.True(t, ok)
 
 		p := &NGINXJsonLog{}
-		ok, err = p.ParseFormat(result)
+		ok, err = p.ParseFormat(ctx, result)
 		assert.NoError(t, err)
 		assert.True(t, ok)
 

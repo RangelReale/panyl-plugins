@@ -1,9 +1,11 @@
 package parse
 
 import (
-	"github.com/RangelReale/panyl"
+	"context"
 	"regexp"
 	"time"
+
+	"github.com/RangelReale/panyl"
 )
 
 var _ panyl.PluginParse = (*RubyLog)(nil)
@@ -21,7 +23,7 @@ var (
 	rubyTimestampFormat = "2006-01-02T15:04:05.999999999"
 )
 
-func (m *RubyLog) ExtractParse(lines panyl.ProcessLines, result *panyl.Process) (bool, error) {
+func (m *RubyLog) ExtractParse(ctx context.Context, lines panyl.ProcessLines, result *panyl.Process) (bool, error) {
 	// Only single line is supported
 	if len(lines) != 1 {
 		return false, nil
@@ -66,10 +68,8 @@ func (m *RubyLog) ExtractParse(lines panyl.ProcessLines, result *panyl.Process) 
 		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelINFO
 	} else if level == "WARN" {
 		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelWARNING
-	} else if level == "ERROR" {
+	} else if level == "ERROR" || level == "FATAL" {
 		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelERROR
-	} else if level == "FATAL" {
-		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevel_FATAL
 	}
 
 	return true, nil

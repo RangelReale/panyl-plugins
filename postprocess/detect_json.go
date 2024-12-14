@@ -1,6 +1,7 @@
 package postprocess
 
 import (
+	"context"
 	"strings"
 	"time"
 
@@ -11,7 +12,7 @@ var _ panyl.PluginPostProcess = (*DetectJSON)(nil)
 
 type DetectJSON struct{}
 
-func (p DetectJSON) PostProcess(result *panyl.Process) (bool, error) {
+func (p DetectJSON) PostProcess(ctx context.Context, result *panyl.Process) (bool, error) {
 	if result.Metadata.HasValue(panyl.MetadataFormat) {
 		// already has a known format
 		return false, nil
@@ -44,9 +45,7 @@ func (p DetectJSON) PostProcess(result *panyl.Process) (bool, error) {
 			}
 			if detectLevel != "" {
 				switch strings.ToLower(detectLevel) {
-				case "fatal":
-					result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevel_FATAL
-				case "error":
+				case "error", "fatal":
 					result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelERROR
 				case "warn", "warning":
 					result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelWARNING
