@@ -21,24 +21,24 @@ var (
 )
 
 func (C NGINXJsonLog) ParseFormat(result *panyl.Process) (bool, error) {
-	if result.Metadata.StringValue(panyl.Metadata_Structure) == panyl.MetadataStructure_JSON {
+	if result.Metadata.StringValue(panyl.MetadataStructure) == panyl.MetadataStructureJSON {
 		if result.Data.HasValue("http_request_path") && result.Data.HasValue("http_status_code") &&
 			result.Data.HasValue("nginx_time") && result.Data.HasValue("now") {
 
 			ts, err := time.Parse(nginxTimestampFormat, result.Data.StringValue("now"))
 			if err == nil {
-				result.Metadata[panyl.Metadata_Timestamp] = ts
+				result.Metadata[panyl.MetadataTimestamp] = ts
 			}
 
-			level := panyl.MetadataLevel_INFO
+			level := panyl.MetadataLevelINFO
 			if hsc := result.Data.StringValue("http_status_code"); hsc != "" {
 				hscn, err := strconv.ParseInt(hsc, 10, 32)
 				if err == nil {
 					if hscn >= 400 {
 						if hscn >= 500 {
-							level = panyl.MetadataLevel_ERROR
+							level = panyl.MetadataLevelERROR
 						} else {
-							level = panyl.MetadataLevel_WARNING
+							level = panyl.MetadataLevelWARNING
 						}
 					}
 				}
@@ -69,9 +69,9 @@ func (C NGINXJsonLog) ParseFormat(result *panyl.Process) (bool, error) {
 				message = fmt.Sprintf("%s -- %s", message, logmessage)
 			}
 
-			result.Metadata[panyl.Metadata_Message] = message
-			result.Metadata[panyl.Metadata_Level] = level
-			result.Metadata[panyl.Metadata_Format] = NGINXJsonLogFormat
+			result.Metadata[panyl.MetadataMessage] = message
+			result.Metadata[panyl.MetadataLevel] = level
+			result.Metadata[panyl.MetadataFormat] = NGINXJsonLogFormat
 			return true, nil
 		}
 	}

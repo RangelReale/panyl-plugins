@@ -9,7 +9,7 @@ import (
 var _ panyl.PluginMetadata = (*RubyForeman)(nil)
 var _ panyl.PluginSequence = (*RubyForeman)(nil)
 
-// RubyForeman extracts application name from the line by the roby foreman format, which is 
+// RubyForeman extracts application name from the line by the roby foreman format, which is
 // a time, followed by an application
 // name, followed by | at the beginning of the line.
 // It also signals a sequence break on lines of different applications.
@@ -29,11 +29,11 @@ func (m *RubyForeman) ExtractMetadata(result *panyl.Process) (bool, error) {
 		return false, nil
 	}
 
-	if m.OnlyIfAnsiEscape && !result.Metadata.ListValueContains(panyl.Metadata_Clean, panyl.MetadataClean_AnsiEscape) {
+	if m.OnlyIfAnsiEscape && !result.Metadata.ListValueContains(panyl.MetadataClean, panyl.MetadataCleanAnsiEscape) {
 		return false, nil
 	}
 
-	//time := matches[1]
+	// time := matches[1]
 	application := strings.TrimSpace(matches[2])
 	text := strings.TrimSpace(matches[3])
 
@@ -50,7 +50,7 @@ func (m *RubyForeman) ExtractMetadata(result *panyl.Process) (bool, error) {
 		}
 	}
 
-	result.Metadata[panyl.Metadata_Application] = application
+	result.Metadata[panyl.MetadataApplication] = application
 	if len(text) > 0 {
 		result.Line = text
 		return true, nil
@@ -61,7 +61,7 @@ func (m *RubyForeman) ExtractMetadata(result *panyl.Process) (bool, error) {
 
 func (m *RubyForeman) BlockSequence(lastp, p *panyl.Process) bool {
 	// block sequence if application changed
-	return lastp.Metadata.StringValue(panyl.Metadata_Application) != p.Metadata.StringValue(panyl.Metadata_Application)
+	return lastp.Metadata.StringValue(panyl.MetadataApplication) != p.Metadata.StringValue(panyl.MetadataApplication)
 }
 
 func (m RubyForeman) IsPanylPlugin() {}

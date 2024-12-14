@@ -50,30 +50,30 @@ func (m *NGINXErrorLog) ExtractParse(lines panyl.ProcessLines, result *panyl.Pro
 	result.Data["cid"] = matches[6]
 	result.Data["message"] = message
 
-	result.Metadata[panyl.Metadata_Format] = NGINXErrorLog_Format
-	result.Metadata[panyl.Metadata_Message] = message
+	result.Metadata[panyl.MetadataFormat] = NGINXErrorLog_Format
+	result.Metadata[panyl.MetadataMessage] = message
 
 	if timestamp != "" {
 		ts, err := time.Parse(nginxErrorTimestampFormat, timestamp)
 		if err == nil {
-			result.Metadata[panyl.Metadata_Timestamp] = ts
+			result.Metadata[panyl.MetadataTimestamp] = ts
 		}
 	}
 
 	// https://github.com/phusion/nginx/blob/master/src/core/ngx_log.c#L56
 	switch level {
 	case "debug":
-		result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_DEBUG
+		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelDEBUG
 	case "info", "notice":
-		result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_INFO
+		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelINFO
 	case "warn":
-		result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_WARNING
+		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelWARNING
 	case "error":
-		result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_ERROR
+		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelERROR
 	case "alert", "crit":
-		result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_CRITICAL
+		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevel_CRITICAL
 	case "emerg":
-		result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_FATAL
+		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevel_FATAL
 	}
 
 	return true, nil

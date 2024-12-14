@@ -12,15 +12,15 @@ var _ panyl.PluginPostProcess = (*DetectJSON)(nil)
 type DetectJSON struct{}
 
 func (p DetectJSON) PostProcess(result *panyl.Process) (bool, error) {
-	if result.Metadata.HasValue(panyl.Metadata_Format) {
+	if result.Metadata.HasValue(panyl.MetadataFormat) {
 		// already has a known format
 		return false, nil
 	}
 
 	// only if json
-	if result.Metadata.StringValue(panyl.Metadata_Structure) == panyl.MetadataStructure_JSON {
+	if result.Metadata.StringValue(panyl.MetadataStructure) == panyl.MetadataStructureJSON {
 		// timestamp
-		if !result.Metadata.HasValue(panyl.Metadata_Timestamp) {
+		if !result.Metadata.HasValue(panyl.MetadataTimestamp) {
 			var detectTimestamp string
 			if result.Data.HasValue("timestamp") {
 				detectTimestamp = result.Data.StringValue("timestamp")
@@ -29,15 +29,15 @@ func (p DetectJSON) PostProcess(result *panyl.Process) (bool, error) {
 			}
 			if detectTimestamp != "" {
 				if ts, err := time.Parse(time.RFC3339, detectTimestamp); err != nil {
-					result.Metadata[panyl.Metadata_Timestamp] = ts
+					result.Metadata[panyl.MetadataTimestamp] = ts
 				} else if ts, err := time.Parse(time.RFC3339Nano, detectTimestamp); err != nil {
-					result.Metadata[panyl.Metadata_Timestamp] = ts
+					result.Metadata[panyl.MetadataTimestamp] = ts
 				}
 			}
 		}
 
 		// level
-		if !result.Metadata.HasValue(panyl.Metadata_Level) {
+		if !result.Metadata.HasValue(panyl.MetadataLevel) {
 			var detectLevel string
 			if result.Data.HasValue("level") {
 				detectLevel = result.Data.StringValue("level")
@@ -45,29 +45,29 @@ func (p DetectJSON) PostProcess(result *panyl.Process) (bool, error) {
 			if detectLevel != "" {
 				switch strings.ToLower(detectLevel) {
 				case "fatal":
-					result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_FATAL
+					result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevel_FATAL
 				case "error":
-					result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_ERROR
+					result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelERROR
 				case "warn", "warning":
-					result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_WARNING
+					result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelWARNING
 				case "info", "information":
-					result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_INFO
+					result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelINFO
 				case "debug":
-					result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_DEBUG
+					result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelDEBUG
 				case "trace":
-					result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_TRACE
+					result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelTRACE
 				}
 			}
 		}
 
 		// level
-		if !result.Metadata.HasValue(panyl.Metadata_Message) {
+		if !result.Metadata.HasValue(panyl.MetadataMessage) {
 			var detectMessage string
 			if result.Data.HasValue("message") {
 				detectMessage = result.Data.StringValue("message")
 			}
 			if detectMessage != "" {
-				result.Metadata[panyl.Metadata_Message] = detectMessage
+				result.Metadata[panyl.MetadataMessage] = detectMessage
 			}
 		}
 	}
@@ -75,7 +75,7 @@ func (p DetectJSON) PostProcess(result *panyl.Process) (bool, error) {
 }
 
 func (p DetectJSON) PostProcessOrder() int {
-	return panyl.PostProcessOrder_First + 1
+	return panyl.PostProcessOrderFirst + 1
 }
 
 func (p DetectJSON) IsPanylPlugin() {}

@@ -42,22 +42,22 @@ func (o *Output) OnResult(p *panyl.Process) (cont bool) {
 	var out bytes.Buffer
 
 	// timestamp
-	if ts, ok := p.Metadata[panyl.Metadata_Timestamp]; ok {
+	if ts, ok := p.Metadata[panyl.MetadataTimestamp]; ok {
 		out.WriteString(fmt.Sprintf("%s ", ts.(time.Time).Local().Format("2006-01-02 15:04:05.000")))
 	}
 
 	// level
-	if level := p.Metadata.StringValue(panyl.Metadata_Level); level != "" {
+	if level := p.Metadata.StringValue(panyl.MetadataLevel); level != "" {
 		out.WriteString(fmt.Sprintf("[%s] ", level))
 	}
 
 	// category
-	if category := p.Metadata.StringValue(panyl.Metadata_Category); category != "" {
+	if category := p.Metadata.StringValue(panyl.MetadataCategory); category != "" {
 		out.WriteString(fmt.Sprintf("{{%s}} ", category))
 	}
 
 	// message
-	if msg := p.Metadata.StringValue(panyl.Metadata_Message); msg != "" {
+	if msg := p.Metadata.StringValue(panyl.MetadataMessage); msg != "" {
 		out.WriteString(msg)
 	} else if len(p.Data) > 0 {
 		// Extracted structure but no metadata

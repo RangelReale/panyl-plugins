@@ -17,7 +17,7 @@ func TestPostgresLog(t *testing.T) {
 	tests := []test{
 		{
 			source:   `2022-04-05 14:29:07.500 UTC [73] ERROR:  relation "users" does not exist at character 36`,
-			level:    panyl.MetadataLevel_ERROR,
+			level:    panyl.MetadataLevelERROR,
 			category: "",
 			message:  `relation "users" does not exist at character 36`,
 		},
@@ -31,9 +31,9 @@ func TestPostgresLog(t *testing.T) {
 		assert.NoError(t, err)
 		assert.True(t, ok)
 
-		assert.NotZero(t, result.Metadata[panyl.Metadata_Timestamp])
-		assert.Equal(t, tc.level, result.Metadata.StringValue(panyl.Metadata_Level))
-		assert.Equal(t, tc.category, result.Metadata.StringValue(panyl.Metadata_Category))
-		assert.Equal(t, tc.message, result.Metadata.StringValue(panyl.Metadata_Message))
+		assert.NotZero(t, result.Metadata[panyl.MetadataTimestamp])
+		assert.Equal(t, tc.level, result.Metadata.StringValue(panyl.MetadataLevel))
+		assert.Equal(t, tc.category, result.Metadata.StringValue(panyl.MetadataCategory))
+		assert.Equal(t, tc.message, result.Metadata.StringValue(panyl.MetadataMessage))
 	}
 }

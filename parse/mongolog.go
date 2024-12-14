@@ -49,26 +49,26 @@ func (m *MongoLog) ExtractParse(lines panyl.ProcessLines, result *panyl.Process)
 	result.Data["context"] = matches[4]
 	result.Data["message"] = message
 
-	result.Metadata[panyl.Metadata_Format] = MongoLog_Format
-	result.Metadata[panyl.Metadata_Message] = message
-	result.Metadata[panyl.Metadata_Category] = component
+	result.Metadata[panyl.MetadataFormat] = MongoLog_Format
+	result.Metadata[panyl.MetadataMessage] = message
+	result.Metadata[panyl.MetadataCategory] = component
 
 	if timestamp != "" {
 		ts, err := time.Parse(mongoTimestampFormat, timestamp)
 		if err == nil {
-			result.Metadata[panyl.Metadata_Timestamp] = ts
+			result.Metadata[panyl.MetadataTimestamp] = ts
 		}
 	}
 
 	// https://docs.mongodb.com/manual/reference/log-messages/
 	if severity == "D" {
-		result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_DEBUG
+		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelDEBUG
 	} else if severity == "I" {
-		result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_INFO
+		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelINFO
 	} else if severity == "W" {
-		result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_WARNING
+		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelWARNING
 	} else if severity == "E" {
-		result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_ERROR
+		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelERROR
 	}
 
 	return true, nil

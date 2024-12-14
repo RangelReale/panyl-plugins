@@ -15,6 +15,6 @@ func TestRubyForeman(t *testing.T) {
 	assert.NoError(t, err)
 	assert.True(t, ok)
 
-	assert.Equal(t, "api.1", result.Metadata.StringValue(panyl.Metadata_Application))
+	assert.Equal(t, "api.1", result.Metadata.StringValue(panyl.MetadataApplication))
 	assert.Equal(t, "log text", result.Line)
 }

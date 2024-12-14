@@ -49,27 +49,27 @@ func (m *RubyLog) ExtractParse(lines panyl.ProcessLines, result *panyl.Process) 
 	result.Data["prog_name"] = matches[5]
 	result.Data["message"] = message
 
-	result.Metadata[panyl.Metadata_Format] = RubyLog_Format
-	result.Metadata[panyl.Metadata_Message] = message
+	result.Metadata[panyl.MetadataFormat] = RubyLog_Format
+	result.Metadata[panyl.MetadataMessage] = message
 
 	if timestamp != "" {
 		ts, err := time.Parse(rubyTimestampFormat, timestamp)
 		if err == nil {
-			result.Metadata[panyl.Metadata_Timestamp] = ts
+			result.Metadata[panyl.MetadataTimestamp] = ts
 		}
 	}
 
 	// https://ruby-doc.org/stdlib-2.6.4/libdoc/logger/rdoc/Logger.html
 	if level == "DEBUG" {
-		result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_DEBUG
+		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelDEBUG
 	} else if level == "INFO" {
-		result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_INFO
+		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelINFO
 	} else if level == "WARN" {
-		result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_WARNING
+		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelWARNING
 	} else if level == "ERROR" {
-		result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_ERROR
+		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelERROR
 	} else if level == "FATAL" {
-		result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_FATAL
+		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevel_FATAL
 	}
 
 	return true, nil

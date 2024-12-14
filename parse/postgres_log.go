@@ -48,29 +48,29 @@ func (m *PostgresLog) ExtractParse(lines panyl.ProcessLines, result *panyl.Proce
 	result.Data["level"] = level
 	result.Data["message"] = message
 
-	result.Metadata[panyl.Metadata_Format] = PostgresLog_Format
-	result.Metadata[panyl.Metadata_Message] = message
+	result.Metadata[panyl.MetadataFormat] = PostgresLog_Format
+	result.Metadata[panyl.MetadataMessage] = message
 
 	if timestamp != "" {
 		ts, err := time.Parse(postgresTimestampFormat, timestamp)
 		if err == nil {
-			result.Metadata[panyl.Metadata_Timestamp] = ts
+			result.Metadata[panyl.MetadataTimestamp] = ts
 		}
 	}
 
 	// https://www.postgresql.org/docs/current/runtime-config-logging.html
 	if level == "ERROR" {
-		result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_ERROR
+		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelERROR
 	} else if level == "FATAL" || level == "PANIC" {
-		result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_FATAL
+		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevel_FATAL
 	} else if level == "WARNING" {
-		result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_WARNING
+		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelWARNING
 	} else if level == "DEBUG" {
-		result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_DEBUG
+		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelDEBUG
 	} else if level == "STATEMENT" || level == "DETAIL" {
-		result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_TRACE
+		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelTRACE
 	} else {
-		result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_INFO
+		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelINFO
 	}
 
 	return true, nil

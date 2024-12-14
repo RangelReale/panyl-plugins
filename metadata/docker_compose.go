@@ -28,7 +28,7 @@ func (m *DockerCompose) ExtractMetadata(result *panyl.Process) (bool, error) {
 		return false, nil
 	}
 
-	if m.OnlyIfAnsiEscape && !result.Metadata.ListValueContains(panyl.Metadata_Clean, panyl.MetadataClean_AnsiEscape) {
+	if m.OnlyIfAnsiEscape && !result.Metadata.ListValueContains(panyl.MetadataClean, panyl.MetadataCleanAnsiEscape) {
 		return false, nil
 	}
 
@@ -46,7 +46,7 @@ func (m *DockerCompose) ExtractMetadata(result *panyl.Process) (bool, error) {
 		}
 	}
 
-	result.Metadata[panyl.Metadata_Application] = application
+	result.Metadata[panyl.MetadataApplication] = application
 
 	if len(result.Line) > matches[1] {
 		result.Line = result.Line[matches[1]+1:]
@@ -58,7 +58,7 @@ func (m *DockerCompose) ExtractMetadata(result *panyl.Process) (bool, error) {
 
 func (m *DockerCompose) BlockSequence(lastp, p *panyl.Process) bool {
 	// block sequence if application changed
-	return lastp.Metadata.StringValue(panyl.Metadata_Application) != p.Metadata.StringValue(panyl.Metadata_Application)
+	return lastp.Metadata.StringValue(panyl.MetadataApplication) != p.Metadata.StringValue(panyl.MetadataApplication)
 }
 
 func (m DockerCompose) IsPanylPlugin() {}

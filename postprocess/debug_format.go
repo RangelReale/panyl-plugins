@@ -12,15 +12,15 @@ type DebugFormat struct {
 }
 
 func (p DebugFormat) PostProcess(result *panyl.Process) (bool, error) {
-	if message := result.Metadata.StringValue(panyl.Metadata_Message); message != "" {
-		result.Metadata[panyl.Metadata_Message] = fmt.Sprintf("[[fmt:%s]] %s",
-			result.Metadata.StringValue(panyl.Metadata_Format), message)
+	if message := result.Metadata.StringValue(panyl.MetadataMessage); message != "" {
+		result.Metadata[panyl.MetadataMessage] = fmt.Sprintf("[[fmt:%s]] %s",
+			result.Metadata.StringValue(panyl.MetadataFormat), message)
 	}
 	return false, nil
 }
 
 func (p DebugFormat) PostProcessOrder() int {
-	return panyl.PostProcessOrder_Last - 1
+	return panyl.PostProcessOrderLast - 1
 }
 
 func (p DebugFormat) IsPanylPlugin() {}

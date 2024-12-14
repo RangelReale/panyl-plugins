@@ -51,37 +51,37 @@ func (m *RedisLog) ExtractParse(lines panyl.ProcessLines, result *panyl.Process)
 	result.Data["level"] = level
 	result.Data["message"] = message
 
-	result.Metadata[panyl.Metadata_Format] = RedisLog_Format
-	result.Metadata[panyl.Metadata_Message] = message
+	result.Metadata[panyl.MetadataFormat] = RedisLog_Format
+	result.Metadata[panyl.MetadataMessage] = message
 
 	if timestamp != "" {
 		ts, err := time.Parse(redisTimestampFormat, timestamp)
 		if err == nil {
-			result.Metadata[panyl.Metadata_Timestamp] = ts
+			result.Metadata[panyl.MetadataTimestamp] = ts
 		}
 	}
 
 	// https://build47.com/redis-log-format-levels/
 	switch level {
 	case ".":
-		result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_DEBUG
+		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelDEBUG
 	case "-":
-		result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_TRACE
+		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelTRACE
 	case "*":
-		result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_INFO
+		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelINFO
 	case "#":
-		result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_WARNING
+		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelWARNING
 	}
 
 	switch role {
 	case "X":
-		result.Metadata[panyl.Metadata_Category] = "sentinel"
+		result.Metadata[panyl.MetadataCategory] = "sentinel"
 	case "C":
-		result.Metadata[panyl.Metadata_Category] = "child"
+		result.Metadata[panyl.MetadataCategory] = "child"
 	case "S":
-		result.Metadata[panyl.Metadata_Category] = "slave"
+		result.Metadata[panyl.MetadataCategory] = "slave"
 	case "M":
-		result.Metadata[panyl.Metadata_Category] = "master"
+		result.Metadata[panyl.MetadataCategory] = "master"
 	}
 
 	return true, nil

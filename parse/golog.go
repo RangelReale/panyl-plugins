@@ -47,26 +47,26 @@ func (m *GoLog) ExtractParse(lines panyl.ProcessLines, result *panyl.Process) (b
 	result.Data["source"] = source
 	result.Data["message"] = message
 
-	result.Metadata[panyl.Metadata_Format] = GoLog_Format
-	result.Metadata[panyl.Metadata_Message] = message
+	result.Metadata[panyl.MetadataFormat] = GoLog_Format
+	result.Metadata[panyl.MetadataMessage] = message
 
 	if timestamp != "" {
 		ts, err := time.Parse(time.RFC3339Nano, timestamp)
 		if err == nil {
-			result.Metadata[panyl.Metadata_Timestamp] = ts
+			result.Metadata[panyl.MetadataTimestamp] = ts
 		}
 	}
 	if level == "DEBUG" {
-		result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_DEBUG
+		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelDEBUG
 	} else if level == "INFO" {
-		result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_INFO
+		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelINFO
 	} else if level == "WARN" {
-		result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_WARNING
+		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelWARNING
 	} else if level == "ERROR" {
-		result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_ERROR
+		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelERROR
 	}
 	if m.SourceAsCategory && source != "" {
-		result.Metadata[panyl.Metadata_Category] = strings.Split(source, ".")[0]
+		result.Metadata[panyl.MetadataCategory] = strings.Split(source, ".")[0]
 	}
 
 	return true, nil

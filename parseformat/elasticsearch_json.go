@@ -20,40 +20,40 @@ var (
 
 func (C ElasticSearchJSON) ParseFormat(result *panyl.Process) (bool, error) {
 	// only if json
-	if result.Metadata.StringValue(panyl.Metadata_Structure) == panyl.MetadataStructure_JSON {
+	if result.Metadata.StringValue(panyl.MetadataStructure) == panyl.MetadataStructureJSON {
 		if result.Data.HasValue("timestamp") && result.Data.HasValue("cluster.name") &&
 			result.Data.HasValue("node.name") && result.Data.HasValue("type") {
 			timestamp := result.Data.StringValue("timestamp")
 			level := result.Data.StringValue("level")
 			message := result.Data.StringValue("message")
-			//component := result.Data.StringValue("component")
+			// component := result.Data.StringValue("component")
 			typ := result.Data.StringValue("type")
 
-			result.Metadata[panyl.Metadata_Format] = ElasticSearchJSONFormat
-			result.Metadata[panyl.Metadata_Message] = message
-			result.Metadata[panyl.Metadata_Category] = typ
+			result.Metadata[panyl.MetadataFormat] = ElasticSearchJSONFormat
+			result.Metadata[panyl.MetadataMessage] = message
+			result.Metadata[panyl.MetadataCategory] = typ
 
 			if timestamp != "" {
 				ts, err := time.Parse(elasticSearchTimestampFormat, timestamp)
 				if err == nil {
-					result.Metadata[panyl.Metadata_Timestamp] = ts
+					result.Metadata[panyl.MetadataTimestamp] = ts
 				}
 			}
 
 			// https://www.elastic.co/guide/en/elasticsearch/reference/current/logging.html
 			switch level {
 			case "OFF", "FATAL":
-				result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_FATAL
+				result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevel_FATAL
 			case "ERROR":
-				result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_ERROR
+				result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelERROR
 			case "WARN":
-				result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_WARNING
+				result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelWARNING
 			case "INFO":
-				result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_INFO
+				result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelINFO
 			case "DEBUG":
-				result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_DEBUG
+				result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelDEBUG
 			case "TRACE":
-				result.Metadata[panyl.Metadata_Level] = panyl.MetadataLevel_TRACE
+				result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelTRACE
 			}
 			return true, nil
 		}

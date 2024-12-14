@@ -15,6 +15,6 @@ func TestDockerCompose(t *testing.T) {
 	assert.NoError(t, err)
 	assert.True(t, ok)
 
-	assert.Equal(t, "application", result.Metadata.StringValue(panyl.Metadata_Application))
+	assert.Equal(t, "application", result.Metadata.StringValue(panyl.MetadataApplication))
 	assert.Equal(t, "my log here", result.Line)
 }

@@ -17,7 +17,7 @@ func TestRubyLog(t *testing.T) {
 	tests := []test{
 		{
 			source:   `I, [1999-03-03T02:34:24.895701 #19074]  INFO -- Main: info.`,
-			level:    panyl.MetadataLevel_INFO,
+			level:    panyl.MetadataLevelINFO,
 			category: "",
 			message:  "info.",
 		},
@@ -31,9 +31,9 @@ func TestRubyLog(t *testing.T) {
 		assert.NoError(t, err)
 		assert.True(t, ok)
 
-		assert.NotZero(t, result.Metadata[panyl.Metadata_Timestamp])
-		assert.Equal(t, tc.level, result.Metadata.StringValue(panyl.Metadata_Level))
-		assert.Equal(t, tc.category, result.Metadata.StringValue(panyl.Metadata_Category))
-		assert.Equal(t, tc.message, result.Metadata.StringValue(panyl.Metadata_Message))
+		assert.NotZero(t, result.Metadata[panyl.MetadataTimestamp])
+		assert.Equal(t, tc.level, result.Metadata.StringValue(panyl.MetadataLevel))
+		assert.Equal(t, tc.category, result.Metadata.StringValue(panyl.MetadataCategory))
+		assert.Equal(t, tc.message, result.Metadata.StringValue(panyl.MetadataMessage))
 	}
 }
