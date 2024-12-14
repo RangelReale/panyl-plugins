@@ -8,11 +8,11 @@ import (
 	"os"
 	"time"
 
-	"github.com/RangelReale/panyl"
-	"github.com/RangelReale/panyl-plugins/metadata"
-	"github.com/RangelReale/panyl-plugins/parse"
+	"github.com/RangelReale/panyl-plugins/v2/metadata"
+	"github.com/RangelReale/panyl-plugins/v2/parse"
 	"github.com/RangelReale/panyl/plugins/clean"
 	"github.com/RangelReale/panyl/plugins/structure"
+	"github.com/RangelReale/panyl/v2"
 )
 
 func main() {

@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/RangelReale/panyl"
+	"github.com/RangelReale/panyl/v2"
 )
 
 var _ panyl.PluginParseFormat = (*NGINXJsonLog)(nil)

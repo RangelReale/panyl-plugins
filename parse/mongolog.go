@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/RangelReale/panyl"
+	"github.com/RangelReale/panyl/v2"
 )
 
 var _ panyl.PluginParse = (*MongoLog)(nil)

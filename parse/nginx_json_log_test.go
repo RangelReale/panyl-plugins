@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/RangelReale/panyl"
-	"github.com/RangelReale/panyl/plugins/structure"
+	"github.com/RangelReale/panyl/v2"
+	"github.com/RangelReale/panyl/v2/plugins/structure"
 	"github.com/stretchr/testify/assert"
 )
 

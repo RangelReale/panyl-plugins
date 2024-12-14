@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/RangelReale/panyl"
+	"github.com/RangelReale/panyl/v2"
 )
 
 var _ panyl.PluginPostProcess = (*DebugFormat)(nil)

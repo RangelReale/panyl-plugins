@@ -2,7 +2,7 @@ package metadata
 
 import (
 	"context"
-	"github.com/RangelReale/panyl"
+	"github.com/RangelReale/panyl/v2"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

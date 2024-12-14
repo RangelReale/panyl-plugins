@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/RangelReale/panyl"
+	"github.com/RangelReale/panyl/v2"
 )
 
 var _ panyl.PluginParseFormat = (*ElasticSearchJSON)(nil)

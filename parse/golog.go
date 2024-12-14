@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/RangelReale/panyl"
+	"github.com/RangelReale/panyl/v2"
 )
 
 var _ panyl.PluginParse = (*GoLog)(nil)
