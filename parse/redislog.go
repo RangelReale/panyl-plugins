@@ -24,7 +24,7 @@ var (
 )
 
 // https://github.com/redis/redis/issues/2545#issuecomment-97270522
-func (m *RedisLog) ExtractParse(ctx context.Context, lines panyl.ProcessLines, result *panyl.Process) (bool, error) {
+func (m *RedisLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, result *panyl.Item) (bool, error) {
 	// Only single line is supported
 	if len(lines) != 1 {
 		return false, nil

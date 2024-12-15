@@ -24,7 +24,7 @@ var _ panyl.PluginSequence = (*DockerCompose)(nil)
 
 var dockerPrefixRE = regexp.MustCompile(`^(\w|[-])+\s+\|`)
 
-func (m *DockerCompose) ExtractMetadata(ctx context.Context, result *panyl.Process) (bool, error) {
+func (m *DockerCompose) ExtractMetadata(ctx context.Context, result *panyl.Item) (bool, error) {
 	matches := dockerPrefixRE.FindStringSubmatchIndex(result.Line)
 	if matches == nil {
 		return false, nil
@@ -58,7 +58,7 @@ func (m *DockerCompose) ExtractMetadata(ctx context.Context, result *panyl.Proce
 	return true, nil
 }
 
-func (m *DockerCompose) BlockSequence(ctx context.Context, lastp, p *panyl.Process) bool {
+func (m *DockerCompose) BlockSequence(ctx context.Context, lastp, p *panyl.Item) bool {
 	// block sequence if application changed
 	return lastp.Metadata.StringValue(panyl.MetadataApplication) != p.Metadata.StringValue(panyl.MetadataApplication)
 }

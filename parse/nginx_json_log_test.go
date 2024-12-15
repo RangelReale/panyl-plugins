@@ -39,8 +39,8 @@ func TestNGINXJSONLog(t *testing.T) {
 
 	for _, tc := range tests {
 		ctx := context.Background()
-		result := panyl.InitProcess()
-		ok, err := JSON.ExtractStructure(ctx, panyl.ProcessLines{&panyl.Process{Line: tc.source}}, result)
+		result := panyl.InitItem()
+		ok, err := JSON.ExtractStructure(ctx, panyl.ItemLines{&panyl.Item{Line: tc.source}}, result)
 		assert.NoError(t, err)
 		assert.True(t, ok)
 

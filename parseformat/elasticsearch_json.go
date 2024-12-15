@@ -20,7 +20,7 @@ var (
 	elasticSearchTimestampFormat = "2006-01-02T15:04:05,000Z07:00"
 )
 
-func (C ElasticSearchJSON) ParseFormat(ctx context.Context, result *panyl.Process) (bool, error) {
+func (C ElasticSearchJSON) ParseFormat(ctx context.Context, result *panyl.Item) (bool, error) {
 	// only if json
 	if result.Metadata.StringValue(panyl.MetadataStructure) == panyl.MetadataStructureJSON {
 		if result.Data.HasValue("timestamp") && result.Data.HasValue("cluster.name") &&

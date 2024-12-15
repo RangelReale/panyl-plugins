@@ -11,7 +11,7 @@ import (
 func TestDockerCompose(t *testing.T) {
 	ctx := context.Background()
 
-	result := panyl.InitProcess()
+	result := panyl.InitItem()
 	result.Line = "application    | my log here"
 
 	plugin := &DockerCompose{}

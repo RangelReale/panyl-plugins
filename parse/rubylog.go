@@ -23,7 +23,7 @@ var (
 	rubyTimestampFormat = "2006-01-02T15:04:05.999999999"
 )
 
-func (m *RubyLog) ExtractParse(ctx context.Context, lines panyl.ProcessLines, result *panyl.Process) (bool, error) {
+func (m *RubyLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, result *panyl.Item) (bool, error) {
 	// Only single line is supported
 	if len(lines) != 1 {
 		return false, nil

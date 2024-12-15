@@ -10,7 +10,7 @@ import (
 func TestRubyForeman(t *testing.T) {
 	ctx := context.Background()
 
-	result := panyl.InitProcess()
+	result := panyl.InitItem()
 	result.Line = "16:41:59 api.1         | log text"
 
 	plugin := &RubyForeman{}

@@ -41,7 +41,7 @@ func main() {
 type Output struct {
 }
 
-func (o *Output) OnResult(ctx context.Context, p *panyl.Process) (cont bool) {
+func (o *Output) OnResult(ctx context.Context, p *panyl.Item) (cont bool) {
 	var out bytes.Buffer
 
 	// timestamp

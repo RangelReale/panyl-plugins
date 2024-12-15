@@ -25,7 +25,7 @@ var _ panyl.PluginSequence = (*RubyForeman)(nil)
 
 var rubyForemanPrefixRE = regexp.MustCompile(`^(\d{2}:\d{2}:\d{2})\s([\w.]+)\s+\|(.*)$`)
 
-func (m *RubyForeman) ExtractMetadata(ctx context.Context, result *panyl.Process) (bool, error) {
+func (m *RubyForeman) ExtractMetadata(ctx context.Context, result *panyl.Item) (bool, error) {
 	matches := rubyForemanPrefixRE.FindStringSubmatch(result.Line)
 	if matches == nil {
 		return false, nil
@@ -61,7 +61,7 @@ func (m *RubyForeman) ExtractMetadata(ctx context.Context, result *panyl.Process
 	return true, nil
 }
 
-func (m *RubyForeman) BlockSequence(ctx context.Context, lastp, p *panyl.Process) bool {
+func (m *RubyForeman) BlockSequence(ctx context.Context, lastp, p *panyl.Item) bool {
 	// block sequence if application changed
 	return lastp.Metadata.StringValue(panyl.MetadataApplication) != p.Metadata.StringValue(panyl.MetadataApplication)
 }

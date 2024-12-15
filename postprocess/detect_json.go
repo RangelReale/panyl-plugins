@@ -12,7 +12,7 @@ var _ panyl.PluginPostProcess = (*DetectJSON)(nil)
 
 type DetectJSON struct{}
 
-func (p DetectJSON) PostProcess(ctx context.Context, result *panyl.Process) (bool, error) {
+func (p DetectJSON) PostProcess(ctx context.Context, result *panyl.Item) (bool, error) {
 	if result.Metadata.HasValue(panyl.MetadataFormat) {
 		// already has a known format
 		return false, nil

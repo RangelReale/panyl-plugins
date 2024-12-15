@@ -27,10 +27,10 @@ func TestMongoLog(t *testing.T) {
 
 	for _, tc := range tests {
 		ctx := context.Background()
-		result := panyl.InitProcess()
+		result := panyl.InitItem()
 
 		p := &MongoLog{}
-		ok, err := p.ExtractParse(ctx, panyl.ProcessLines{&panyl.Process{Line: tc.source}}, result)
+		ok, err := p.ExtractParse(ctx, panyl.ItemLines{&panyl.Item{Line: tc.source}}, result)
 		assert.NoError(t, err)
 		assert.True(t, ok)
 
