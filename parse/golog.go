@@ -9,20 +9,20 @@ import (
 	"github.com/RangelReale/panyl/v2"
 )
 
-var _ panyl.PluginParse = (*GoLog)(nil)
-
-const GoLog_Format = "go_log"
+const GoLogFormat = "go_log"
 
 // GoLog parse Golang log lines format
 type GoLog struct {
 	SourceAsCategory bool
 }
 
+var _ panyl.PluginParse = GoLog{}
+
 // example: "2022-03-10T19:53:21.434Z	INFO	datadog-go/tracer.go:35	Datadog Tracer v1.28.0 ERROR: lost 2 traces"
 
 var goLogRe = regexp.MustCompile(`^(\d{4}-\d{2}-\d{2}T[^\s]+)\s+(\w+)\s+(.*\.go:\d+)\s+(.*)$`)
 
-func (m *GoLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, item *panyl.Item) (bool, error) {
+func (m GoLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, item *panyl.Item) (bool, error) {
 	// Only single line is supported
 	if len(lines) != 1 {
 		return false, nil
@@ -49,7 +49,7 @@ func (m *GoLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, item *p
 	item.Data["source"] = source
 	item.Data["message"] = message
 
-	item.Metadata[panyl.MetadataFormat] = GoLog_Format
+	item.Metadata[panyl.MetadataFormat] = GoLogFormat
 	item.Metadata[panyl.MetadataMessage] = message
 
 	if timestamp != "" {

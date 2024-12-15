@@ -8,9 +8,7 @@ import (
 	"github.com/RangelReale/panyl/v2"
 )
 
-var _ panyl.PluginParse = (*RedisLog)(nil)
-
-const RedisLog_Format = "redis_log"
+const RedisLogFormat = "redis_log"
 
 // RedisLog parses Redis log lines format
 type RedisLog struct {
@@ -18,13 +16,16 @@ type RedisLog struct {
 
 // example: "21:C 13 Apr 2022 17:59:51.096 * RDB: 0 MB of memory used by copy-on-write"
 
+var _ panyl.PluginParse = RedisLog{}
+
 var (
 	RedisLogRe           = regexp.MustCompile(`^(\d+):(\w)\s+(\d{2}\s\w{3}\s\d{4} \d{2}:\d{2}:\d{2}.\d{3})\s([.*#-])\s*(.*)$`)
 	redisTimestampFormat = "02 Jan 2006 15:04:05.000"
 )
 
-// https://github.com/redis/redis/issues/2545#issuecomment-97270522
-func (m *RedisLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, item *panyl.Item) (bool, error) {
+func (m RedisLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, item *panyl.Item) (bool, error) {
+	// https://github.com/redis/redis/issues/2545#issuecomment-97270522
+
 	// Only single line is supported
 	if len(lines) != 1 {
 		return false, nil
@@ -53,7 +54,7 @@ func (m *RedisLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, item
 	item.Data["level"] = level
 	item.Data["message"] = message
 
-	item.Metadata[panyl.MetadataFormat] = RedisLog_Format
+	item.Metadata[panyl.MetadataFormat] = RedisLogFormat
 	item.Metadata[panyl.MetadataMessage] = message
 
 	if timestamp != "" {

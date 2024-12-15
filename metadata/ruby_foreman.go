@@ -18,14 +18,14 @@ type RubyForeman struct {
 	ApplicationWhitelist []string
 }
 
-var _ panyl.PluginMetadata = (*RubyForeman)(nil)
-var _ panyl.PluginSequence = (*RubyForeman)(nil)
+var _ panyl.PluginMetadata = RubyForeman{}
+var _ panyl.PluginSequence = RubyForeman{}
 
 // example: "16:41:59 api.1         | log text"
 
 var rubyForemanPrefixRE = regexp.MustCompile(`^(\d{2}:\d{2}:\d{2})\s([\w.]+)\s+\|(.*)$`)
 
-func (m *RubyForeman) ExtractMetadata(ctx context.Context, item *panyl.Item) (bool, error) {
+func (m RubyForeman) ExtractMetadata(ctx context.Context, item *panyl.Item) (bool, error) {
 	matches := rubyForemanPrefixRE.FindStringSubmatch(item.Line)
 	if matches == nil {
 		return false, nil
@@ -61,7 +61,7 @@ func (m *RubyForeman) ExtractMetadata(ctx context.Context, item *panyl.Item) (bo
 	return true, nil
 }
 
-func (m *RubyForeman) BlockSequence(ctx context.Context, lastp, item *panyl.Item) bool {
+func (m RubyForeman) BlockSequence(ctx context.Context, lastp, item *panyl.Item) bool {
 	// block sequence if application changed
 	return lastp.Metadata.StringValue(panyl.MetadataApplication) != item.Metadata.StringValue(panyl.MetadataApplication)
 }

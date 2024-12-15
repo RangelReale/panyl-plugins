@@ -8,11 +8,11 @@ import (
 	"github.com/RangelReale/panyl/v2"
 )
 
-var _ panyl.PluginPostProcess = (*DetectJSON)(nil)
-
 type DetectJSON struct{}
 
-func (p DetectJSON) PostProcess(ctx context.Context, item *panyl.Item) (bool, error) {
+var _ panyl.PluginPostProcess = DetectJSON{}
+
+func (m DetectJSON) PostProcess(ctx context.Context, item *panyl.Item) (bool, error) {
 	if item.Metadata.HasValue(panyl.MetadataFormat) {
 		// already has a known format
 		return false, nil
@@ -73,8 +73,8 @@ func (p DetectJSON) PostProcess(ctx context.Context, item *panyl.Item) (bool, er
 	return false, nil
 }
 
-func (p DetectJSON) PostProcessOrder() int {
+func (m DetectJSON) PostProcessOrder() int {
 	return panyl.PostProcessOrderFirst + 1
 }
 
-func (p DetectJSON) IsPanylPlugin() {}
+func (m DetectJSON) IsPanylPlugin() {}

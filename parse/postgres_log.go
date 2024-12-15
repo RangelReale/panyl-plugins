@@ -8,13 +8,13 @@ import (
 	"github.com/RangelReale/panyl/v2"
 )
 
-var _ panyl.PluginParse = (*PostgresLog)(nil)
-
-const PostgresLog_Format = "postgres_log"
+const PostgresLogFormat = "postgres_log"
 
 // PostgresLog parses MongoDB log lines format
 type PostgresLog struct {
 }
+
+var _ panyl.PluginParse = PostgresLog{}
 
 // example: "2022-04-05 14:29:07.500 UTC [73] ERROR:  relation "users" does not exist at character 36"
 
@@ -23,7 +23,7 @@ var (
 	postgresTimestampFormat = "2006-01-02 15:04:05.000"
 )
 
-func (m *PostgresLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, item *panyl.Item) (bool, error) {
+func (m PostgresLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, item *panyl.Item) (bool, error) {
 	// Only single line is supported
 	if len(lines) != 1 {
 		return false, nil
@@ -50,7 +50,7 @@ func (m *PostgresLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, i
 	item.Data["level"] = level
 	item.Data["message"] = message
 
-	item.Metadata[panyl.MetadataFormat] = PostgresLog_Format
+	item.Metadata[panyl.MetadataFormat] = PostgresLogFormat
 	item.Metadata[panyl.MetadataMessage] = message
 
 	if timestamp != "" {

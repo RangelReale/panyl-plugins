@@ -17,14 +17,14 @@ type DockerCompose struct {
 	ApplicationWhitelist []string
 }
 
-var _ panyl.PluginMetadata = (*DockerCompose)(nil)
-var _ panyl.PluginSequence = (*DockerCompose)(nil)
+var _ panyl.PluginMetadata = DockerCompose{}
+var _ panyl.PluginSequence = DockerCompose{}
 
 // example: "application    |"
 
 var dockerPrefixRE = regexp.MustCompile(`^(\w|[-])+\s+\|`)
 
-func (m *DockerCompose) ExtractMetadata(ctx context.Context, item *panyl.Item) (bool, error) {
+func (m DockerCompose) ExtractMetadata(ctx context.Context, item *panyl.Item) (bool, error) {
 	matches := dockerPrefixRE.FindStringSubmatchIndex(item.Line)
 	if matches == nil {
 		return false, nil
@@ -58,7 +58,7 @@ func (m *DockerCompose) ExtractMetadata(ctx context.Context, item *panyl.Item) (
 	return true, nil
 }
 
-func (m *DockerCompose) BlockSequence(ctx context.Context, lastp, item *panyl.Item) bool {
+func (m DockerCompose) BlockSequence(ctx context.Context, lastp, item *panyl.Item) bool {
 	// block sequence if application changed
 	return lastp.Metadata.StringValue(panyl.MetadataApplication) != item.Metadata.StringValue(panyl.MetadataApplication)
 }

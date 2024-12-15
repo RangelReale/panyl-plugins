@@ -8,9 +8,7 @@ import (
 	"github.com/RangelReale/panyl/v2"
 )
 
-var _ panyl.PluginParse = (*RubyLog)(nil)
-
-const RubyLog_Format = "ruby_log"
+const RubyLogFormat = "ruby_log"
 
 // RubyLog parses Ruby log lines format
 type RubyLog struct {
@@ -18,12 +16,14 @@ type RubyLog struct {
 
 // example: "I, [1999-03-03T02:34:24.895701 #19074]  INFO -- Main: info."
 
+var _ panyl.PluginParse = RubyLog{}
+
 var (
 	rubyLogRe           = regexp.MustCompile(`(\w), \[(\d{4}-\d{2}-\d{2}T[^\s]+)\s+(#\d+)]\s+(\w+)\s+--\s+([^:]*):\s+(.*)`)
 	rubyTimestampFormat = "2006-01-02T15:04:05.999999999"
 )
 
-func (m *RubyLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, item *panyl.Item) (bool, error) {
+func (m RubyLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, item *panyl.Item) (bool, error) {
 	// Only single line is supported
 	if len(lines) != 1 {
 		return false, nil
@@ -51,7 +51,7 @@ func (m *RubyLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, item 
 	item.Data["prog_name"] = matches[5]
 	item.Data["message"] = message
 
-	item.Metadata[panyl.MetadataFormat] = RubyLog_Format
+	item.Metadata[panyl.MetadataFormat] = RubyLogFormat
 	item.Metadata[panyl.MetadataMessage] = message
 
 	if timestamp != "" {

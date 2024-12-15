@@ -7,8 +7,6 @@ import (
 	"github.com/RangelReale/panyl/v2"
 )
 
-var _ panyl.PluginParseFormat = (*ElasticSearchJSON)(nil)
-
 const ElasticSearchJSONFormat = "elasticsearch_json"
 
 type ElasticSearchJSON struct {
@@ -16,11 +14,13 @@ type ElasticSearchJSON struct {
 
 // example: {"cluster.name":"docker-cluster","component":"o.e.t.TransportService","level":"INFO","message":"publish_address {172.18.0.4:9300}, bound_addresses {0.0.0.0:9300}","node.name":"3404ffa7b26c","timestamp":"2022-04-13T17:24:56,134Z","type":"server"}
 
+var _ panyl.PluginParseFormat = ElasticSearchJSON{}
+
 var (
 	elasticSearchTimestampFormat = "2006-01-02T15:04:05,000Z07:00"
 )
 
-func (C ElasticSearchJSON) ParseFormat(ctx context.Context, item *panyl.Item) (bool, error) {
+func (m ElasticSearchJSON) ParseFormat(ctx context.Context, item *panyl.Item) (bool, error) {
 	// only if json
 	if item.Metadata.StringValue(panyl.MetadataStructure) == panyl.MetadataStructureJSON {
 		if item.Data.HasValue("timestamp") && item.Data.HasValue("cluster.name") &&
@@ -61,4 +61,4 @@ func (C ElasticSearchJSON) ParseFormat(ctx context.Context, item *panyl.Item) (b
 	return false, nil
 }
 
-func (C ElasticSearchJSON) IsPanylPlugin() {}
+func (m ElasticSearchJSON) IsPanylPlugin() {}
