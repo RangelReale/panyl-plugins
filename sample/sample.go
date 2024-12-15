@@ -41,38 +41,38 @@ func main() {
 type Output struct {
 }
 
-func (o *Output) OnResult(ctx context.Context, p *panyl.Item) (cont bool) {
+func (o *Output) OnResult(ctx context.Context, item *panyl.Item) (cont bool) {
 	var out bytes.Buffer
 
 	// timestamp
-	if ts, ok := p.Metadata[panyl.MetadataTimestamp]; ok {
+	if ts, ok := item.Metadata[panyl.MetadataTimestamp]; ok {
 		out.WriteString(fmt.Sprintf("%s ", ts.(time.Time).Local().Format("2006-01-02 15:04:05.000")))
 	}
 
 	// level
-	if level := p.Metadata.StringValue(panyl.MetadataLevel); level != "" {
+	if level := item.Metadata.StringValue(panyl.MetadataLevel); level != "" {
 		out.WriteString(fmt.Sprintf("[%s] ", level))
 	}
 
 	// category
-	if category := p.Metadata.StringValue(panyl.MetadataCategory); category != "" {
+	if category := item.Metadata.StringValue(panyl.MetadataCategory); category != "" {
 		out.WriteString(fmt.Sprintf("{{%s}} ", category))
 	}
 
 	// message
-	if msg := p.Metadata.StringValue(panyl.MetadataMessage); msg != "" {
+	if msg := item.Metadata.StringValue(panyl.MetadataMessage); msg != "" {
 		out.WriteString(msg)
-	} else if len(p.Data) > 0 {
+	} else if len(item.Data) > 0 {
 		// Extracted structure but no metadata
-		dt, err := json.Marshal(p.Data)
+		dt, err := json.Marshal(item.Data)
 		if err != nil {
 			fmt.Printf("Error marshaling data to json: %s\n", err.Error())
 			return
 		}
 		out.WriteString(fmt.Sprintf("| %s", string(dt)))
-	} else if p.Line != "" {
+	} else if item.Line != "" {
 		// Show raw line if available
-		out.WriteString(p.Line)
+		out.WriteString(item.Line)
 	}
 
 	fmt.Println(out.String())
