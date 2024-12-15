@@ -14,7 +14,7 @@ func TestRubyForeman(t *testing.T) {
 	item := panyl.InitItem()
 	item.Line = "16:41:59 api.1         | log text"
 
-	plugin := &RubyForeman{}
+	plugin := RubyForeman{}
 	ok, err := plugin.ExtractMetadata(ctx, item)
 	assert.NoError(t, err)
 	assert.True(t, ok)

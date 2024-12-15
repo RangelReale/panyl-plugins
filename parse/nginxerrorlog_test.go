@@ -30,7 +30,7 @@ func TestNGINXErrorLog(t *testing.T) {
 		ctx := context.Background()
 		item := panyl.InitItem()
 
-		p := &NGINXErrorLog{}
+		p := NGINXErrorLog{}
 		ok, err := p.ExtractParse(ctx, panyl.ItemLines{&panyl.Item{Line: tc.source}}, item)
 		assert.NoError(t, err)
 		assert.True(t, ok)

@@ -30,7 +30,7 @@ func TestGoLog(t *testing.T) {
 
 		item := panyl.InitItem()
 
-		p := &GoLog{SourceAsCategory: true}
+		p := GoLog{SourceAsCategory: true}
 		ok, err := p.ExtractParse(ctx, panyl.ItemLines{&panyl.Item{Line: tc.source}}, item)
 		assert.NoError(t, err)
 		assert.True(t, ok)

@@ -20,13 +20,13 @@ func main() {
 
 	processor := panyl.NewProcessor(
 		panyl.WithPlugins(
-			&clean.AnsiEscape{},
-			&metadata.DockerCompose{},
-			&structure.JSON{},
-			&parse.GoLog{},
-			&parse.RubyLog{},
-			&parse.MongoLog{},
-			&parse.NGINXErrorLog{},
+			clean.AnsiEscape{},
+			metadata.DockerCompose{},
+			structure.JSON{},
+			parse.GoLog{},
+			parse.RubyLog{},
+			parse.MongoLog{},
+			parse.NGINXErrorLog{},
 		),
 		// may use a logger when debugging, it outputs each source line and parsed processes
 		// panyl.WithDebugLog(panyl.NewStdDebugLogOutput()),

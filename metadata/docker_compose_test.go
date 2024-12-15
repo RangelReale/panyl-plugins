@@ -14,7 +14,7 @@ func TestDockerCompose(t *testing.T) {
 	item := panyl.InitItem()
 	item.Line = "application    | my log here"
 
-	plugin := &DockerCompose{}
+	plugin := DockerCompose{}
 	ok, err := plugin.ExtractMetadata(ctx, item)
 	assert.NoError(t, err)
 	assert.True(t, ok)

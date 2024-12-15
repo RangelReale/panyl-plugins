@@ -35,7 +35,7 @@ func TestNGINXJSONLog(t *testing.T) {
 		},
 	}
 
-	JSON := &structure.JSON{}
+	JSON := structure.JSON{}
 
 	for _, tc := range tests {
 		ctx := context.Background()
@@ -44,7 +44,7 @@ func TestNGINXJSONLog(t *testing.T) {
 		assert.NoError(t, err)
 		assert.True(t, ok)
 
-		p := &NGINXJsonLog{}
+		p := NGINXJsonLog{}
 		ok, err = p.ParseFormat(ctx, item)
 		assert.NoError(t, err)
 		assert.True(t, ok)
