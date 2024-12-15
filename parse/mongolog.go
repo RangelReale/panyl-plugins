@@ -23,7 +23,7 @@ var (
 	mongoTimestampFormat = "2006-01-02T15:04:05.999999999-0700"
 )
 
-func (m *MongoLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, result *panyl.Item) (bool, error) {
+func (m *MongoLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, item *panyl.Item) (bool, error) {
 	// Only single line is supported
 	if len(lines) != 1 {
 		return false, nil
@@ -34,43 +34,43 @@ func (m *MongoLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, resu
 		return false, nil
 	}
 
-	err := result.MergeLinesData(lines)
+	err := item.MergeLinesData(lines)
 	if err != nil {
 		return false, err
 	}
-	result.Line = ""
+	item.Line = ""
 
 	timestamp := matches[1]
 	severity := matches[2]
 	component := matches[3]
 	message := matches[5]
 
-	result.Data["timestamp"] = timestamp
-	result.Data["severity"] = severity
-	result.Data["component"] = component
-	result.Data["context"] = matches[4]
-	result.Data["message"] = message
+	item.Data["timestamp"] = timestamp
+	item.Data["severity"] = severity
+	item.Data["component"] = component
+	item.Data["context"] = matches[4]
+	item.Data["message"] = message
 
-	result.Metadata[panyl.MetadataFormat] = MongoLog_Format
-	result.Metadata[panyl.MetadataMessage] = message
-	result.Metadata[panyl.MetadataCategory] = component
+	item.Metadata[panyl.MetadataFormat] = MongoLog_Format
+	item.Metadata[panyl.MetadataMessage] = message
+	item.Metadata[panyl.MetadataCategory] = component
 
 	if timestamp != "" {
 		ts, err := time.Parse(mongoTimestampFormat, timestamp)
 		if err == nil {
-			result.Metadata[panyl.MetadataTimestamp] = ts
+			item.Metadata[panyl.MetadataTimestamp] = ts
 		}
 	}
 
 	// https://docs.mongodb.com/manual/reference/log-messages/
 	if severity == "D" {
-		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelDEBUG
+		item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelDEBUG
 	} else if severity == "I" {
-		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelINFO
+		item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelINFO
 	} else if severity == "W" {
-		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelWARNING
+		item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelWARNING
 	} else if severity == "E" {
-		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelERROR
+		item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelERROR
 	}
 
 	return true, nil

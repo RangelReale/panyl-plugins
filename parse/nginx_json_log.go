@@ -22,18 +22,18 @@ var (
 	nginxTimestampFormat = "2006-01-02T15:04:05Z07:00"
 )
 
-func (C NGINXJsonLog) ParseFormat(ctx context.Context, result *panyl.Item) (bool, error) {
-	if result.Metadata.StringValue(panyl.MetadataStructure) == panyl.MetadataStructureJSON {
-		if result.Data.HasValue("http_request_path") && result.Data.HasValue("http_status_code") &&
-			result.Data.HasValue("nginx_time") && result.Data.HasValue("now") {
+func (C NGINXJsonLog) ParseFormat(ctx context.Context, item *panyl.Item) (bool, error) {
+	if item.Metadata.StringValue(panyl.MetadataStructure) == panyl.MetadataStructureJSON {
+		if item.Data.HasValue("http_request_path") && item.Data.HasValue("http_status_code") &&
+			item.Data.HasValue("nginx_time") && item.Data.HasValue("now") {
 
-			ts, err := time.Parse(nginxTimestampFormat, result.Data.StringValue("now"))
+			ts, err := time.Parse(nginxTimestampFormat, item.Data.StringValue("now"))
 			if err == nil {
-				result.Metadata[panyl.MetadataTimestamp] = ts
+				item.Metadata[panyl.MetadataTimestamp] = ts
 			}
 
 			level := panyl.MetadataLevelINFO
-			if hsc := result.Data.StringValue("http_status_code"); hsc != "" {
+			if hsc := item.Data.StringValue("http_status_code"); hsc != "" {
 				hscn, err := strconv.ParseInt(hsc, 10, 32)
 				if err == nil {
 					if hscn >= 400 {
@@ -46,34 +46,34 @@ func (C NGINXJsonLog) ParseFormat(ctx context.Context, result *panyl.Item) (bool
 				}
 			}
 
-			host := result.Data.StringValue("host")
-			if hhost := result.Data.StringValue("http_host"); hhost != "" {
+			host := item.Data.StringValue("host")
+			if hhost := item.Data.StringValue("http_host"); hhost != "" {
 				host = hhost
 			}
 
 			message := fmt.Sprintf("%s %s%s [status:%s]",
-				result.Data.StringValue("request_method"),
+				item.Data.StringValue("request_method"),
 				host,
-				result.Data.StringValue("uri"),
-				result.Data.StringValue("status"),
+				item.Data.StringValue("uri"),
+				item.Data.StringValue("status"),
 			)
-			if result.Data.HasValue("upstream_addr") {
+			if item.Data.HasValue("upstream_addr") {
 				message = fmt.Sprintf("%s -> upstream %s [status:%s]", message,
-					result.Data.StringValue("upstream_addr"),
-					result.Data.StringValue("upstream_status"),
+					item.Data.StringValue("upstream_addr"),
+					item.Data.StringValue("upstream_status"),
 				)
 			}
-			if result.Data.HasValue("proxy_host") {
-				message = fmt.Sprintf("%s {proxy host:%s}", message, result.Data.StringValue("proxy_host"))
+			if item.Data.HasValue("proxy_host") {
+				message = fmt.Sprintf("%s {proxy host:%s}", message, item.Data.StringValue("proxy_host"))
 			}
 
-			if logmessage := result.Data.StringValue("message"); message != "" {
+			if logmessage := item.Data.StringValue("message"); message != "" {
 				message = fmt.Sprintf("%s -- %s", message, logmessage)
 			}
 
-			result.Metadata[panyl.MetadataMessage] = message
-			result.Metadata[panyl.MetadataLevel] = level
-			result.Metadata[panyl.MetadataFormat] = NGINXJsonLogFormat
+			item.Metadata[panyl.MetadataMessage] = message
+			item.Metadata[panyl.MetadataLevel] = level
+			item.Metadata[panyl.MetadataFormat] = NGINXJsonLogFormat
 			return true, nil
 		}
 	}

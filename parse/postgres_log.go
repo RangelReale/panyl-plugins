@@ -23,7 +23,7 @@ var (
 	postgresTimestampFormat = "2006-01-02 15:04:05.000"
 )
 
-func (m *PostgresLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, result *panyl.Item) (bool, error) {
+func (m *PostgresLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, item *panyl.Item) (bool, error) {
 	// Only single line is supported
 	if len(lines) != 1 {
 		return false, nil
@@ -34,43 +34,43 @@ func (m *PostgresLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, r
 		return false, nil
 	}
 
-	err := result.MergeLinesData(lines)
+	err := item.MergeLinesData(lines)
 	if err != nil {
 		return false, err
 	}
-	result.Line = ""
+	item.Line = ""
 
 	timestamp := matches[1]
 	pid := matches[2]
 	level := matches[3]
 	message := matches[4]
 
-	result.Data["timestamp"] = timestamp
-	result.Data["pid"] = pid
-	result.Data["level"] = level
-	result.Data["message"] = message
+	item.Data["timestamp"] = timestamp
+	item.Data["pid"] = pid
+	item.Data["level"] = level
+	item.Data["message"] = message
 
-	result.Metadata[panyl.MetadataFormat] = PostgresLog_Format
-	result.Metadata[panyl.MetadataMessage] = message
+	item.Metadata[panyl.MetadataFormat] = PostgresLog_Format
+	item.Metadata[panyl.MetadataMessage] = message
 
 	if timestamp != "" {
 		ts, err := time.Parse(postgresTimestampFormat, timestamp)
 		if err == nil {
-			result.Metadata[panyl.MetadataTimestamp] = ts
+			item.Metadata[panyl.MetadataTimestamp] = ts
 		}
 	}
 
 	// https://www.postgresql.org/docs/current/runtime-config-logging.html
 	if level == "ERROR" || level == "FATAL" || level == "PANIC" {
-		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelERROR
+		item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelERROR
 	} else if level == "WARNING" {
-		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelWARNING
+		item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelWARNING
 	} else if level == "DEBUG" {
-		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelDEBUG
+		item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelDEBUG
 	} else if level == "STATEMENT" || level == "DETAIL" {
-		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelTRACE
+		item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelTRACE
 	} else {
-		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelINFO
+		item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelINFO
 	}
 
 	return true, nil

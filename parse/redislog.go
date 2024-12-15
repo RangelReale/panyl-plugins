@@ -24,7 +24,7 @@ var (
 )
 
 // https://github.com/redis/redis/issues/2545#issuecomment-97270522
-func (m *RedisLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, result *panyl.Item) (bool, error) {
+func (m *RedisLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, item *panyl.Item) (bool, error) {
 	// Only single line is supported
 	if len(lines) != 1 {
 		return false, nil
@@ -35,11 +35,11 @@ func (m *RedisLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, resu
 		return false, nil
 	}
 
-	err := result.MergeLinesData(lines)
+	err := item.MergeLinesData(lines)
 	if err != nil {
 		return false, err
 	}
-	result.Line = ""
+	item.Line = ""
 
 	pid := matches[1]
 	role := matches[2]
@@ -47,43 +47,43 @@ func (m *RedisLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, resu
 	level := matches[4]
 	message := matches[5]
 
-	result.Data["pid"] = pid
-	result.Data["role"] = role
-	result.Data["timestamp"] = timestamp
-	result.Data["level"] = level
-	result.Data["message"] = message
+	item.Data["pid"] = pid
+	item.Data["role"] = role
+	item.Data["timestamp"] = timestamp
+	item.Data["level"] = level
+	item.Data["message"] = message
 
-	result.Metadata[panyl.MetadataFormat] = RedisLog_Format
-	result.Metadata[panyl.MetadataMessage] = message
+	item.Metadata[panyl.MetadataFormat] = RedisLog_Format
+	item.Metadata[panyl.MetadataMessage] = message
 
 	if timestamp != "" {
 		ts, err := time.Parse(redisTimestampFormat, timestamp)
 		if err == nil {
-			result.Metadata[panyl.MetadataTimestamp] = ts
+			item.Metadata[panyl.MetadataTimestamp] = ts
 		}
 	}
 
 	// https://build47.com/redis-log-format-levels/
 	switch level {
 	case ".":
-		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelDEBUG
+		item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelDEBUG
 	case "-":
-		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelTRACE
+		item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelTRACE
 	case "*":
-		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelINFO
+		item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelINFO
 	case "#":
-		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelWARNING
+		item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelWARNING
 	}
 
 	switch role {
 	case "X":
-		result.Metadata[panyl.MetadataCategory] = "sentinel"
+		item.Metadata[panyl.MetadataCategory] = "sentinel"
 	case "C":
-		result.Metadata[panyl.MetadataCategory] = "child"
+		item.Metadata[panyl.MetadataCategory] = "child"
 	case "S":
-		result.Metadata[panyl.MetadataCategory] = "slave"
+		item.Metadata[panyl.MetadataCategory] = "slave"
 	case "M":
-		result.Metadata[panyl.MetadataCategory] = "master"
+		item.Metadata[panyl.MetadataCategory] = "master"
 	}
 
 	return true, nil

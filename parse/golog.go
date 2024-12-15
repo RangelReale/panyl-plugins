@@ -22,7 +22,7 @@ type GoLog struct {
 
 var goLogRe = regexp.MustCompile(`^(\d{4}-\d{2}-\d{2}T[^\s]+)\s+(\w+)\s+(.*\.go:\d+)\s+(.*)$`)
 
-func (m *GoLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, result *panyl.Item) (bool, error) {
+func (m *GoLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, item *panyl.Item) (bool, error) {
 	// Only single line is supported
 	if len(lines) != 1 {
 		return false, nil
@@ -33,42 +33,42 @@ func (m *GoLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, result 
 		return false, nil
 	}
 
-	err := result.MergeLinesData(lines)
+	err := item.MergeLinesData(lines)
 	if err != nil {
 		return false, err
 	}
-	result.Line = ""
+	item.Line = ""
 
 	timestamp := matches[1]
 	level := matches[2]
 	source := matches[3]
 	message := matches[4]
 
-	result.Data["timestamp"] = timestamp
-	result.Data["level"] = level
-	result.Data["source"] = source
-	result.Data["message"] = message
+	item.Data["timestamp"] = timestamp
+	item.Data["level"] = level
+	item.Data["source"] = source
+	item.Data["message"] = message
 
-	result.Metadata[panyl.MetadataFormat] = GoLog_Format
-	result.Metadata[panyl.MetadataMessage] = message
+	item.Metadata[panyl.MetadataFormat] = GoLog_Format
+	item.Metadata[panyl.MetadataMessage] = message
 
 	if timestamp != "" {
 		ts, err := time.Parse(time.RFC3339Nano, timestamp)
 		if err == nil {
-			result.Metadata[panyl.MetadataTimestamp] = ts
+			item.Metadata[panyl.MetadataTimestamp] = ts
 		}
 	}
 	if level == "DEBUG" {
-		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelDEBUG
+		item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelDEBUG
 	} else if level == "INFO" {
-		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelINFO
+		item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelINFO
 	} else if level == "WARN" {
-		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelWARNING
+		item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelWARNING
 	} else if level == "ERROR" {
-		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelERROR
+		item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelERROR
 	}
 	if m.SourceAsCategory && source != "" {
-		result.Metadata[panyl.MetadataCategory] = strings.Split(source, ".")[0]
+		item.Metadata[panyl.MetadataCategory] = strings.Split(source, ".")[0]
 	}
 
 	return true, nil

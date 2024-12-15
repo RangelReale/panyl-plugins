@@ -20,40 +20,40 @@ var (
 	elasticSearchTimestampFormat = "2006-01-02T15:04:05,000Z07:00"
 )
 
-func (C ElasticSearchJSON) ParseFormat(ctx context.Context, result *panyl.Item) (bool, error) {
+func (C ElasticSearchJSON) ParseFormat(ctx context.Context, item *panyl.Item) (bool, error) {
 	// only if json
-	if result.Metadata.StringValue(panyl.MetadataStructure) == panyl.MetadataStructureJSON {
-		if result.Data.HasValue("timestamp") && result.Data.HasValue("cluster.name") &&
-			result.Data.HasValue("node.name") && result.Data.HasValue("type") {
-			timestamp := result.Data.StringValue("timestamp")
-			level := result.Data.StringValue("level")
-			message := result.Data.StringValue("message")
-			// component := result.Data.StringValue("component")
-			typ := result.Data.StringValue("type")
+	if item.Metadata.StringValue(panyl.MetadataStructure) == panyl.MetadataStructureJSON {
+		if item.Data.HasValue("timestamp") && item.Data.HasValue("cluster.name") &&
+			item.Data.HasValue("node.name") && item.Data.HasValue("type") {
+			timestamp := item.Data.StringValue("timestamp")
+			level := item.Data.StringValue("level")
+			message := item.Data.StringValue("message")
+			// component := item.Data.StringValue("component")
+			typ := item.Data.StringValue("type")
 
-			result.Metadata[panyl.MetadataFormat] = ElasticSearchJSONFormat
-			result.Metadata[panyl.MetadataMessage] = message
-			result.Metadata[panyl.MetadataCategory] = typ
+			item.Metadata[panyl.MetadataFormat] = ElasticSearchJSONFormat
+			item.Metadata[panyl.MetadataMessage] = message
+			item.Metadata[panyl.MetadataCategory] = typ
 
 			if timestamp != "" {
 				ts, err := time.Parse(elasticSearchTimestampFormat, timestamp)
 				if err == nil {
-					result.Metadata[panyl.MetadataTimestamp] = ts
+					item.Metadata[panyl.MetadataTimestamp] = ts
 				}
 			}
 
 			// https://www.elastic.co/guide/en/elasticsearch/reference/current/logging.html
 			switch level {
 			case "ERROR", "OFF", "FATAL":
-				result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelERROR
+				item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelERROR
 			case "WARN":
-				result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelWARNING
+				item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelWARNING
 			case "INFO":
-				result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelINFO
+				item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelINFO
 			case "DEBUG":
-				result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelDEBUG
+				item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelDEBUG
 			case "TRACE":
-				result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelTRACE
+				item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelTRACE
 			}
 			return true, nil
 		}

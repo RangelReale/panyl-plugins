@@ -24,17 +24,17 @@ var _ panyl.PluginSequence = (*DockerCompose)(nil)
 
 var dockerPrefixRE = regexp.MustCompile(`^(\w|[-])+\s+\|`)
 
-func (m *DockerCompose) ExtractMetadata(ctx context.Context, result *panyl.Item) (bool, error) {
-	matches := dockerPrefixRE.FindStringSubmatchIndex(result.Line)
+func (m *DockerCompose) ExtractMetadata(ctx context.Context, item *panyl.Item) (bool, error) {
+	matches := dockerPrefixRE.FindStringSubmatchIndex(item.Line)
 	if matches == nil {
 		return false, nil
 	}
 
-	if m.OnlyIfAnsiEscape && !result.Metadata.ListValueContains(panyl.MetadataClean, panyl.MetadataCleanAnsiEscape) {
+	if m.OnlyIfAnsiEscape && !item.Metadata.ListValueContains(panyl.MetadataClean, panyl.MetadataCleanAnsiEscape) {
 		return false, nil
 	}
 
-	application := strings.TrimSpace(result.Line[matches[0] : matches[1]-1])
+	application := strings.TrimSpace(item.Line[matches[0] : matches[1]-1])
 	if len(m.ApplicationWhitelist) > 0 {
 		found := false
 		for _, app := range m.ApplicationWhitelist {
@@ -48,13 +48,13 @@ func (m *DockerCompose) ExtractMetadata(ctx context.Context, result *panyl.Item)
 		}
 	}
 
-	result.Metadata[panyl.MetadataApplication] = application
+	item.Metadata[panyl.MetadataApplication] = application
 
-	if len(result.Line) > matches[1] {
-		result.Line = result.Line[matches[1]+1:]
+	if len(item.Line) > matches[1] {
+		item.Line = item.Line[matches[1]+1:]
 		return true, nil
 	}
-	result.Line = ""
+	item.Line = ""
 	return true, nil
 }
 

@@ -23,7 +23,7 @@ var (
 	rubyTimestampFormat = "2006-01-02T15:04:05.999999999"
 )
 
-func (m *RubyLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, result *panyl.Item) (bool, error) {
+func (m *RubyLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, item *panyl.Item) (bool, error) {
 	// Only single line is supported
 	if len(lines) != 1 {
 		return false, nil
@@ -34,42 +34,42 @@ func (m *RubyLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, resul
 		return false, nil
 	}
 
-	err := result.MergeLinesData(lines)
+	err := item.MergeLinesData(lines)
 	if err != nil {
 		return false, err
 	}
-	result.Line = ""
+	item.Line = ""
 
 	timestamp := matches[2]
 	level := matches[4]
 	message := matches[6]
 
-	result.Data["severity_id"] = matches[1]
-	result.Data["timestamp"] = timestamp
-	result.Data["pid"] = matches[3]
-	result.Data["severity"] = level
-	result.Data["prog_name"] = matches[5]
-	result.Data["message"] = message
+	item.Data["severity_id"] = matches[1]
+	item.Data["timestamp"] = timestamp
+	item.Data["pid"] = matches[3]
+	item.Data["severity"] = level
+	item.Data["prog_name"] = matches[5]
+	item.Data["message"] = message
 
-	result.Metadata[panyl.MetadataFormat] = RubyLog_Format
-	result.Metadata[panyl.MetadataMessage] = message
+	item.Metadata[panyl.MetadataFormat] = RubyLog_Format
+	item.Metadata[panyl.MetadataMessage] = message
 
 	if timestamp != "" {
 		ts, err := time.Parse(rubyTimestampFormat, timestamp)
 		if err == nil {
-			result.Metadata[panyl.MetadataTimestamp] = ts
+			item.Metadata[panyl.MetadataTimestamp] = ts
 		}
 	}
 
 	// https://ruby-doc.org/stdlib-2.6.4/libdoc/logger/rdoc/Logger.html
 	if level == "DEBUG" {
-		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelDEBUG
+		item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelDEBUG
 	} else if level == "INFO" {
-		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelINFO
+		item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelINFO
 	} else if level == "WARN" {
-		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelWARNING
+		item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelWARNING
 	} else if level == "ERROR" || level == "FATAL" {
-		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelERROR
+		item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelERROR
 	}
 
 	return true, nil

@@ -24,7 +24,7 @@ var (
 	nginxErrorTimestampFormat = "2006/01/02 15:04:05"
 )
 
-func (m *NGINXErrorLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, result *panyl.Item) (bool, error) {
+func (m *NGINXErrorLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, item *panyl.Item) (bool, error) {
 	// Only single line is supported
 	if len(lines) != 1 {
 		return false, nil
@@ -35,43 +35,43 @@ func (m *NGINXErrorLog) ExtractParse(ctx context.Context, lines panyl.ItemLines,
 		return false, nil
 	}
 
-	err := result.MergeLinesData(lines)
+	err := item.MergeLinesData(lines)
 	if err != nil {
 		return false, err
 	}
-	result.Line = ""
+	item.Line = ""
 
 	timestamp := matches[1]
 	level := matches[2]
 	message := matches[7]
 
-	result.Data["timestamp"] = timestamp
-	result.Data["level"] = level
-	result.Data["pid"] = matches[3]
-	result.Data["tid"] = matches[4]
-	result.Data["cid"] = matches[6]
-	result.Data["message"] = message
+	item.Data["timestamp"] = timestamp
+	item.Data["level"] = level
+	item.Data["pid"] = matches[3]
+	item.Data["tid"] = matches[4]
+	item.Data["cid"] = matches[6]
+	item.Data["message"] = message
 
-	result.Metadata[panyl.MetadataFormat] = NGINXErrorLog_Format
-	result.Metadata[panyl.MetadataMessage] = message
+	item.Metadata[panyl.MetadataFormat] = NGINXErrorLog_Format
+	item.Metadata[panyl.MetadataMessage] = message
 
 	if timestamp != "" {
 		ts, err := time.Parse(nginxErrorTimestampFormat, timestamp)
 		if err == nil {
-			result.Metadata[panyl.MetadataTimestamp] = ts
+			item.Metadata[panyl.MetadataTimestamp] = ts
 		}
 	}
 
 	// https://github.com/phusion/nginx/blob/master/src/core/ngx_log.c#L56
 	switch level {
 	case "debug":
-		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelDEBUG
+		item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelDEBUG
 	case "info", "notice":
-		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelINFO
+		item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelINFO
 	case "warn":
-		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelWARNING
+		item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelWARNING
 	case "error", "alert", "crit", "emerg":
-		result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelERROR
+		item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelERROR
 	}
 
 	return true, nil

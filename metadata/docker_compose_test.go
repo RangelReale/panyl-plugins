@@ -11,14 +11,14 @@ import (
 func TestDockerCompose(t *testing.T) {
 	ctx := context.Background()
 
-	result := panyl.InitItem()
-	result.Line = "application    | my log here"
+	item := panyl.InitItem()
+	item.Line = "application    | my log here"
 
 	plugin := &DockerCompose{}
-	ok, err := plugin.ExtractMetadata(ctx, result)
+	ok, err := plugin.ExtractMetadata(ctx, item)
 	assert.NoError(t, err)
 	assert.True(t, ok)
 
-	assert.Equal(t, "application", result.Metadata.StringValue(panyl.MetadataApplication))
-	assert.Equal(t, "my log here", result.Line)
+	assert.Equal(t, "application", item.Metadata.StringValue(panyl.MetadataApplication))
+	assert.Equal(t, "my log here", item.Line)
 }

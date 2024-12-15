@@ -27,16 +27,16 @@ func TestRubyLog(t *testing.T) {
 
 	for _, tc := range tests {
 		ctx := context.Background()
-		result := panyl.InitItem()
+		item := panyl.InitItem()
 
 		p := &RubyLog{}
-		ok, err := p.ExtractParse(ctx, panyl.ItemLines{&panyl.Item{Line: tc.source}}, result)
+		ok, err := p.ExtractParse(ctx, panyl.ItemLines{&panyl.Item{Line: tc.source}}, item)
 		assert.NoError(t, err)
 		assert.True(t, ok)
 
-		assert.NotZero(t, result.Metadata[panyl.MetadataTimestamp])
-		assert.Equal(t, tc.level, result.Metadata.StringValue(panyl.MetadataLevel))
-		assert.Equal(t, tc.category, result.Metadata.StringValue(panyl.MetadataCategory))
-		assert.Equal(t, tc.message, result.Metadata.StringValue(panyl.MetadataMessage))
+		assert.NotZero(t, item.Metadata[panyl.MetadataTimestamp])
+		assert.Equal(t, tc.level, item.Metadata.StringValue(panyl.MetadataLevel))
+		assert.Equal(t, tc.category, item.Metadata.StringValue(panyl.MetadataCategory))
+		assert.Equal(t, tc.message, item.Metadata.StringValue(panyl.MetadataMessage))
 	}
 }

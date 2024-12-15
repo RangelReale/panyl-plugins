@@ -39,18 +39,18 @@ func TestNGINXJSONLog(t *testing.T) {
 
 	for _, tc := range tests {
 		ctx := context.Background()
-		result := panyl.InitItem()
-		ok, err := JSON.ExtractStructure(ctx, panyl.ItemLines{&panyl.Item{Line: tc.source}}, result)
+		item := panyl.InitItem()
+		ok, err := JSON.ExtractStructure(ctx, panyl.ItemLines{&panyl.Item{Line: tc.source}}, item)
 		assert.NoError(t, err)
 		assert.True(t, ok)
 
 		p := &NGINXJsonLog{}
-		ok, err = p.ParseFormat(ctx, result)
+		ok, err = p.ParseFormat(ctx, item)
 		assert.NoError(t, err)
 		assert.True(t, ok)
 
-		assert.NotZero(t, result.Metadata[panyl.MetadataTimestamp])
-		assert.Equal(t, tc.level, result.Metadata.StringValue(panyl.MetadataLevel))
-		assert.True(t, strings.HasPrefix(result.Metadata.StringValue(panyl.MetadataMessage), tc.message))
+		assert.NotZero(t, item.Metadata[panyl.MetadataTimestamp])
+		assert.Equal(t, tc.level, item.Metadata.StringValue(panyl.MetadataLevel))
+		assert.True(t, strings.HasPrefix(item.Metadata.StringValue(panyl.MetadataMessage), tc.message))
 	}
 }

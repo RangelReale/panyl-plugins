@@ -28,18 +28,18 @@ func TestNGINXErrorLog(t *testing.T) {
 
 	for _, tc := range tests {
 		ctx := context.Background()
-		result := panyl.InitItem()
+		item := panyl.InitItem()
 
 		p := &NGINXErrorLog{}
-		ok, err := p.ExtractParse(ctx, panyl.ItemLines{&panyl.Item{Line: tc.source}}, result)
+		ok, err := p.ExtractParse(ctx, panyl.ItemLines{&panyl.Item{Line: tc.source}}, item)
 		assert.NoError(t, err)
 		assert.True(t, ok)
 
-		assert.NotZero(t, result.Metadata[panyl.MetadataTimestamp])
-		assert.Equal(t, tc.level, result.Metadata.StringValue(panyl.MetadataLevel))
-		assert.Equal(t, tc.category, result.Metadata.StringValue(panyl.MetadataCategory))
-		assert.True(t, strings.HasPrefix(result.Metadata.StringValue(panyl.MetadataMessage), tc.message),
+		assert.NotZero(t, item.Metadata[panyl.MetadataTimestamp])
+		assert.Equal(t, tc.level, item.Metadata.StringValue(panyl.MetadataLevel))
+		assert.Equal(t, tc.category, item.Metadata.StringValue(panyl.MetadataCategory))
+		assert.True(t, strings.HasPrefix(item.Metadata.StringValue(panyl.MetadataMessage), tc.message),
 			"message is different, expected prefix '%s' got '%s'", tc.message,
-			result.Metadata.StringValue(panyl.MetadataMessage))
+			item.Metadata.StringValue(panyl.MetadataMessage))
 	}
 }

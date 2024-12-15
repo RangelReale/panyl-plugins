@@ -25,13 +25,13 @@ var _ panyl.PluginSequence = (*RubyForeman)(nil)
 
 var rubyForemanPrefixRE = regexp.MustCompile(`^(\d{2}:\d{2}:\d{2})\s([\w.]+)\s+\|(.*)$`)
 
-func (m *RubyForeman) ExtractMetadata(ctx context.Context, result *panyl.Item) (bool, error) {
-	matches := rubyForemanPrefixRE.FindStringSubmatch(result.Line)
+func (m *RubyForeman) ExtractMetadata(ctx context.Context, item *panyl.Item) (bool, error) {
+	matches := rubyForemanPrefixRE.FindStringSubmatch(item.Line)
 	if matches == nil {
 		return false, nil
 	}
 
-	if m.OnlyIfAnsiEscape && !result.Metadata.ListValueContains(panyl.MetadataClean, panyl.MetadataCleanAnsiEscape) {
+	if m.OnlyIfAnsiEscape && !item.Metadata.ListValueContains(panyl.MetadataClean, panyl.MetadataCleanAnsiEscape) {
 		return false, nil
 	}
 
@@ -52,12 +52,12 @@ func (m *RubyForeman) ExtractMetadata(ctx context.Context, result *panyl.Item) (
 		}
 	}
 
-	result.Metadata[panyl.MetadataApplication] = application
+	item.Metadata[panyl.MetadataApplication] = application
 	if len(text) > 0 {
-		result.Line = text
+		item.Line = text
 		return true, nil
 	}
-	result.Line = ""
+	item.Line = ""
 	return true, nil
 }
 

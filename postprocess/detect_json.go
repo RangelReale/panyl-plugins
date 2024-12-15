@@ -12,61 +12,61 @@ var _ panyl.PluginPostProcess = (*DetectJSON)(nil)
 
 type DetectJSON struct{}
 
-func (p DetectJSON) PostProcess(ctx context.Context, result *panyl.Item) (bool, error) {
-	if result.Metadata.HasValue(panyl.MetadataFormat) {
+func (p DetectJSON) PostProcess(ctx context.Context, item *panyl.Item) (bool, error) {
+	if item.Metadata.HasValue(panyl.MetadataFormat) {
 		// already has a known format
 		return false, nil
 	}
 
 	// only if json
-	if result.Metadata.StringValue(panyl.MetadataStructure) == panyl.MetadataStructureJSON {
+	if item.Metadata.StringValue(panyl.MetadataStructure) == panyl.MetadataStructureJSON {
 		// timestamp
-		if !result.Metadata.HasValue(panyl.MetadataTimestamp) {
+		if !item.Metadata.HasValue(panyl.MetadataTimestamp) {
 			var detectTimestamp string
-			if result.Data.HasValue("timestamp") {
-				detectTimestamp = result.Data.StringValue("timestamp")
-			} else if result.Data.HasValue("time") {
-				detectTimestamp = result.Data.StringValue("time")
+			if item.Data.HasValue("timestamp") {
+				detectTimestamp = item.Data.StringValue("timestamp")
+			} else if item.Data.HasValue("time") {
+				detectTimestamp = item.Data.StringValue("time")
 			}
 			if detectTimestamp != "" {
 				if ts, err := time.Parse(time.RFC3339, detectTimestamp); err != nil {
-					result.Metadata[panyl.MetadataTimestamp] = ts
+					item.Metadata[panyl.MetadataTimestamp] = ts
 				} else if ts, err := time.Parse(time.RFC3339Nano, detectTimestamp); err != nil {
-					result.Metadata[panyl.MetadataTimestamp] = ts
+					item.Metadata[panyl.MetadataTimestamp] = ts
 				}
 			}
 		}
 
 		// level
-		if !result.Metadata.HasValue(panyl.MetadataLevel) {
+		if !item.Metadata.HasValue(panyl.MetadataLevel) {
 			var detectLevel string
-			if result.Data.HasValue("level") {
-				detectLevel = result.Data.StringValue("level")
+			if item.Data.HasValue("level") {
+				detectLevel = item.Data.StringValue("level")
 			}
 			if detectLevel != "" {
 				switch strings.ToLower(detectLevel) {
 				case "error", "fatal":
-					result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelERROR
+					item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelERROR
 				case "warn", "warning":
-					result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelWARNING
+					item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelWARNING
 				case "info", "information":
-					result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelINFO
+					item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelINFO
 				case "debug":
-					result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelDEBUG
+					item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelDEBUG
 				case "trace":
-					result.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelTRACE
+					item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelTRACE
 				}
 			}
 		}
 
 		// level
-		if !result.Metadata.HasValue(panyl.MetadataMessage) {
+		if !item.Metadata.HasValue(panyl.MetadataMessage) {
 			var detectMessage string
-			if result.Data.HasValue("message") {
-				detectMessage = result.Data.StringValue("message")
+			if item.Data.HasValue("message") {
+				detectMessage = item.Data.StringValue("message")
 			}
 			if detectMessage != "" {
-				result.Metadata[panyl.MetadataMessage] = detectMessage
+				item.Metadata[panyl.MetadataMessage] = detectMessage
 			}
 		}
 	}

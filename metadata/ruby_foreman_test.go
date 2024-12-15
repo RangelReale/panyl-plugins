@@ -2,22 +2,23 @@ package metadata
 
 import (
 	"context"
+	"testing"
+
 	"github.com/RangelReale/panyl/v2"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestRubyForeman(t *testing.T) {
 	ctx := context.Background()
 
-	result := panyl.InitItem()
-	result.Line = "16:41:59 api.1         | log text"
+	item := panyl.InitItem()
+	item.Line = "16:41:59 api.1         | log text"
 
 	plugin := &RubyForeman{}
-	ok, err := plugin.ExtractMetadata(ctx, result)
+	ok, err := plugin.ExtractMetadata(ctx, item)
 	assert.NoError(t, err)
 	assert.True(t, ok)
 
-	assert.Equal(t, "api.1", result.Metadata.StringValue(panyl.MetadataApplication))
-	assert.Equal(t, "log text", result.Line)
+	assert.Equal(t, "api.1", item.Metadata.StringValue(panyl.MetadataApplication))
+	assert.Equal(t, "log text", item.Line)
 }
