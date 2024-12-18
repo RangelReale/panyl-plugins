@@ -2,7 +2,9 @@ package parse
 
 import (
 	"context"
+	"fmt"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -35,7 +37,7 @@ func (m GoSpaceLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, ite
 		return false, nil
 	}
 
-	for _, fieldToCheck := range []string{"level", "ts", "msg"} {
+	for _, fieldToCheck := range []string{"level", "ts", "caller"} {
 		if _, ok := fields[fieldToCheck]; !ok {
 			return false, nil
 		}
@@ -71,13 +73,13 @@ func (m GoSpaceLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, ite
 			item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelERROR
 		}
 	}
-	if message, ok := fields["msg"]; ok {
-		item.Metadata[panyl.MetadataMessage] = message
-	}
 	if source, ok := fields["caller"]; ok {
 		if m.SourceAsCategory && source != "" {
 			item.Metadata[panyl.MetadataCategory] = strings.Split(source, ":")[0]
 		}
+	}
+	if message, ok := fields["msg"]; ok {
+		item.Metadata[panyl.MetadataMessage] = message
 	}
 
 	return true, nil
@@ -121,4 +123,19 @@ func (m GoSpaceLog) splitString(str string) []string {
 		}
 		return !quoted && unicode.IsSpace(r1)
 	})
+}
+
+func (m GoSpaceLog) encodeFieldsExcept(fields panyl.MapValue, except ...string) string {
+	var ret []string
+	for fn, fv := range fields {
+		if slices.Contains(except, fn) {
+			continue
+		}
+		fvs := fmt.Sprint(fv)
+		if !strconv.CanBackquote(fvs) || strings.Contains(fvs, " ") {
+			fvs = strconv.Quote(fvs)
+		}
+		ret = append(ret, fmt.Sprintf("%s=%s", fn, fvs))
+	}
+	return strings.Join(ret, " ")
 }
