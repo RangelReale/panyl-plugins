@@ -56,10 +56,14 @@ func (m GoSpaceLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, ite
 
 	item.Metadata[panyl.MetadataFormat] = GoSpaceLogFormat
 
-	if timestamp, ok := fields["ts"]; ok {
-		ts, err := time.Parse(time.RFC3339Nano, timestamp)
-		if err == nil {
-			item.Metadata[panyl.MetadataTimestamp] = ts
+looptf:
+	for _, tf := range []string{"ts", "t"} {
+		if timestamp, ok := fields[tf]; ok {
+			ts, err := time.Parse(time.RFC3339Nano, timestamp)
+			if err == nil {
+				item.Metadata[panyl.MetadataTimestamp] = ts
+				break looptf
+			}
 		}
 	}
 	isError := false
