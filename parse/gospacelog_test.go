@@ -43,6 +43,18 @@ func TestGoSpaceLog(t *testing.T) {
 				"level":   "info",
 			},
 		},
+		{
+			source:  `level=info ts=2024-12-18T14:55:27.787558447Z caller=poller.go:136 msg="blocklist tab \t poll complete" seconds=0.128523552`,
+			level:   panyl.MetadataLevelINFO,
+			message: "blocklist tab \t poll complete",
+			data: panyl.MapValue{
+				"caller":  "poller.go:136",
+				"msg":     "blocklist tab \t poll complete",
+				"seconds": "0.128523552",
+				"ts":      "2024-12-18T14:55:27.787558447Z",
+				"level":   "info",
+			},
+		},
 	}
 
 	for _, tc := range tests {

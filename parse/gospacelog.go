@@ -3,6 +3,7 @@ package parse
 import (
 	"context"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 	"unicode"
@@ -100,32 +101,24 @@ func (m GoSpaceLog) splitFields(str string) map[string]string {
 }
 
 func (m GoSpaceLog) trimQuotes(str string) string {
-	str = strings.TrimSpace(str)
-	if strings.HasPrefix(str, `"`) && strings.HasSuffix(str, `"`) {
-		return str[1 : len(str)-1]
+	s, err := strconv.Unquote(strings.TrimSpace(str))
+	if err != nil {
+		return str
 	}
-	return str
+	return s
 }
 
 func (m GoSpaceLog) splitString(str string) []string {
 	quoted := false
 	backTick := false
-	fields := strings.FieldsFunc(str, func(r1 rune) bool {
-		if r1 == '\\' {
+	return strings.FieldsFunc(str, func(r1 rune) bool {
+		if backTick {
+			backTick = false
+		} else if r1 == '\\' {
 			backTick = true
 		} else if r1 == '"' {
-			if !backTick {
-				quoted = !quoted
-			}
-			backTick = false
-		} else if backTick {
-			backTick = false
+			quoted = !quoted
 		}
 		return !quoted && unicode.IsSpace(r1)
 	})
-	var ret []string
-	for _, field := range fields {
-		ret = append(ret, strings.ReplaceAll(field, `\"`, `"`))
-	}
-	return ret
 }
