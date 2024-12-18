@@ -73,7 +73,7 @@ func (m GoSpaceLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, ite
 	if message, ok := fields["msg"]; ok {
 		item.Metadata[panyl.MetadataMessage] = message
 	}
-	if source, ok := fields["source"]; ok {
+	if source, ok := fields["caller"]; ok {
 		if m.SourceAsCategory && source != "" {
 			item.Metadata[panyl.MetadataCategory] = strings.Split(source, ":")[0]
 		}
@@ -109,10 +109,23 @@ func (m GoSpaceLog) trimQuotes(str string) string {
 
 func (m GoSpaceLog) splitString(str string) []string {
 	quoted := false
-	return strings.FieldsFunc(str, func(r1 rune) bool {
-		if r1 == '"' {
-			quoted = !quoted
+	backTick := false
+	fields := strings.FieldsFunc(str, func(r1 rune) bool {
+		if r1 == '\\' {
+			backTick = true
+		} else if r1 == '"' {
+			if !backTick {
+				quoted = !quoted
+			}
+			backTick = false
+		} else if backTick {
+			backTick = false
 		}
 		return !quoted && unicode.IsSpace(r1)
 	})
+	var ret []string
+	for _, field := range fields {
+		ret = append(ret, strings.ReplaceAll(field, `\"`, `"`))
+	}
+	return ret
 }

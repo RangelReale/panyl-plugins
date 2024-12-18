@@ -2,33 +2,46 @@ package parse
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"github.com/RangelReale/panyl/v2"
+	gocmp "github.com/google/go-cmp/cmp"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
-
-func TestGoSpaceLogT1(t *testing.T) {
-	p := GoSpaceLog{}
-	x := p.splitFields(`level=info ts=2024-12-18T14:55:27.787558447Z caller=poller.go:136 msg="blocklist poll complete" seconds=0.128523552`)
-	fmt.Println(x)
-}
 
 func TestGoSpaceLog(t *testing.T) {
 	type test struct {
-		source   string
-		level    string
-		category string
-		message  string
+		source  string
+		level   string
+		message string
+		data    panyl.MapValue
 	}
 
 	tests := []test{
 		{
-			source:   `level=info ts=2024-12-18T14:55:27.787558447Z caller=poller.go:136 msg="blocklist poll complete" seconds=0.128523552`,
-			level:    panyl.MetadataLevelINFO,
-			category: "datadog-go/tracer",
-			message:  "Datadog Tracer v1.28.0 ERROR: lost 2 traces",
+			source:  `level=info ts=2024-12-18T14:55:27.787558447Z caller=poller.go:136 msg="blocklist poll complete" seconds=0.128523552`,
+			level:   panyl.MetadataLevelINFO,
+			message: "blocklist poll complete",
+			data: panyl.MapValue{
+				"caller":  "poller.go:136",
+				"msg":     "blocklist poll complete",
+				"seconds": "0.128523552",
+				"ts":      "2024-12-18T14:55:27.787558447Z",
+				"level":   "info",
+			},
+		},
+		{
+			source:  `level=info ts=2024-12-18T14:55:27.787558447Z caller=poller.go:136 msg="blocklist \"with quotes\" poll complete" seconds=0.128523552`,
+			level:   panyl.MetadataLevelINFO,
+			message: `blocklist "with quotes" poll complete`,
+			data: panyl.MapValue{
+				"caller":  "poller.go:136",
+				"msg":     `blocklist "with quotes" poll complete`,
+				"seconds": "0.128523552",
+				"ts":      "2024-12-18T14:55:27.787558447Z",
+				"level":   "info",
+			},
 		},
 	}
 
@@ -44,7 +57,38 @@ func TestGoSpaceLog(t *testing.T) {
 
 		assert.NotZero(t, item.Metadata[panyl.MetadataTimestamp])
 		assert.Equal(t, tc.level, item.Metadata.StringValue(panyl.MetadataLevel))
-		assert.Equal(t, tc.category, item.Metadata.StringValue(panyl.MetadataCategory))
 		assert.Equal(t, tc.message, item.Metadata.StringValue(panyl.MetadataMessage))
+		requireDeepEqual(t, tc.data, item.Data)
 	}
+}
+
+type helperT interface {
+	Helper()
+}
+
+// assertDeepEqual uses [github.com/google/go-cmp/cmp]
+// to assert two values are equal and fails the test if they are not equal.
+func assertDeepEqual(t require.TestingT, expected interface{}, actual interface{}, opts ...gocmp.Option) bool {
+	if ht, ok := t.(helperT); ok {
+		ht.Helper()
+	}
+
+	diff := gocmp.Diff(expected, actual, opts...)
+	if diff == "" {
+		return true
+	}
+
+	return assert.Fail(t, diff)
+}
+
+// requireDeepEqual uses [github.com/google/go-cmp/cmp]
+// to assert two values are equal and fails the test if they are not equal.
+func requireDeepEqual(t require.TestingT, expected interface{}, actual interface{}, opts ...gocmp.Option) {
+	if ht, ok := t.(helperT); ok {
+		ht.Helper()
+	}
+	if assertDeepEqual(t, expected, actual, opts...) {
+		return
+	}
+	t.FailNow()
 }
