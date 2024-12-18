@@ -37,7 +37,7 @@ func (m GoSpaceLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, ite
 		return false, nil
 	}
 
-	for _, fieldToCheck := range []string{"level", "ts", "caller"} {
+	for _, fieldToCheck := range []string{"level", "ts"} {
 		if _, ok := fields[fieldToCheck]; !ok {
 			return false, nil
 		}
@@ -62,6 +62,7 @@ func (m GoSpaceLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, ite
 			item.Metadata[panyl.MetadataTimestamp] = ts
 		}
 	}
+	isError := false
 	if level, ok := fields["level"]; ok {
 		if level == "debug" {
 			item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelDEBUG
@@ -69,8 +70,10 @@ func (m GoSpaceLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, ite
 			item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelINFO
 		} else if level == "warn" || level == "warning" {
 			item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelWARNING
+			isError = true
 		} else if level == "error" {
 			item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelERROR
+			isError = true
 		}
 	}
 	if source, ok := fields["caller"]; ok {
@@ -80,12 +83,24 @@ func (m GoSpaceLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, ite
 	}
 	if message, ok := fields["msg"]; ok {
 		item.Metadata[panyl.MetadataMessage] = message
+		if merror, ok := m.errorFieldValue(fields); ok && isError && merror != "" {
+			item.Metadata[panyl.MetadataMessage] = fmt.Sprintf("%s [error: %s]", message, merror)
+		}
 	}
 
 	return true, nil
 }
 
 func (m GoSpaceLog) IsPanylPlugin() {}
+
+func (m GoSpaceLog) errorFieldValue(fields map[string]string) (string, bool) {
+	if emsg, ok := fields["err"]; ok {
+		return emsg, true
+	} else if emsg, ok := fields["error"]; ok {
+		return emsg, true
+	}
+	return "", false
+}
 
 func (m GoSpaceLog) splitFields(str string) map[string]string {
 	fields := m.splitString(str)
