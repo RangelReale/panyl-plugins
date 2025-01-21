@@ -55,6 +55,7 @@ func (m KubeCtlLogs) ExtractMetadata(ctx context.Context, item *panyl.Item) (boo
 	application := strings.TrimSpace(matches[1])
 	appsep := strings.Split(application, "/")
 	if m.ExtractApplicationName && len(appsep) == 3 {
+		item.Metadata[panyl.MetadataOriginalCategory] = application
 		application = m.parsePodName(appsep[1], appsep[2])
 		// matches := kubeCtlLogsDeploymentRE.FindStringSubmatch(appsep[1])
 		// if matches != nil {
