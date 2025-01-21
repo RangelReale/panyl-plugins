@@ -19,7 +19,9 @@ const (
 // It also signals a sequence break on lines of different applications.
 // If ApplicationWhitelist is not nil, only applications on this list will be considered.
 type KubeCtlLogs struct {
-	OnlyIfAnsiEscape     bool
+	OnlyIfAnsiEscape       bool
+	ExtractApplicationName bool
+
 	ApplicationWhitelist []string
 }
 
@@ -52,7 +54,7 @@ func (m KubeCtlLogs) ExtractMetadata(ctx context.Context, item *panyl.Item) (boo
 
 	application := strings.TrimSpace(matches[1])
 	appsep := strings.Split(application, "/")
-	if len(appsep) == 3 {
+	if m.ExtractApplicationName && len(appsep) == 3 {
 		application = m.parsePodName(appsep[1], appsep[2])
 		// matches := kubeCtlLogsDeploymentRE.FindStringSubmatch(appsep[1])
 		// if matches != nil {
