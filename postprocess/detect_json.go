@@ -59,11 +59,13 @@ func (m DetectJSON) PostProcess(ctx context.Context, item *panyl.Item) (bool, er
 			}
 		}
 
-		// level
+		// message
 		if !item.Metadata.HasValue(panyl.MetadataMessage) {
 			var detectMessage string
 			if item.Data.HasValue("message") {
 				detectMessage = item.Data.StringValue("message")
+			} else if item.Data.HasValue("msg") {
+				detectMessage = item.Data.StringValue("msg")
 			}
 			if detectMessage != "" {
 				item.Metadata[panyl.MetadataMessage] = detectMessage
