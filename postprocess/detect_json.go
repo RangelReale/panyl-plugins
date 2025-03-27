@@ -29,9 +29,9 @@ func (m DetectJSON) PostProcess(ctx context.Context, item *panyl.Item) (bool, er
 				detectTimestamp = item.Data.StringValue("time")
 			}
 			if detectTimestamp != "" {
-				if ts, err := time.Parse(time.RFC3339, detectTimestamp); err != nil {
+				if ts, err := time.Parse(time.RFC3339, detectTimestamp); err == nil {
 					item.Metadata[panyl.MetadataTimestamp] = ts
-				} else if ts, err := time.Parse(time.RFC3339Nano, detectTimestamp); err != nil {
+				} else if ts, err := time.Parse(time.RFC3339Nano, detectTimestamp); err == nil {
 					item.Metadata[panyl.MetadataTimestamp] = ts
 				}
 			}
