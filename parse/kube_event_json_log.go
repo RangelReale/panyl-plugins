@@ -66,6 +66,8 @@ func (m KubeEventJsonLog) ParseFormat(ctx context.Context, item *panyl.Item) (bo
 				}
 			}
 
+			isBatch := false
+
 			if involvedObject := item.Data.MapValue("involvedObject"); involvedObject != nil {
 				objectType := involvedObject.StringValue("kind")
 				objectName := involvedObject.StringValue("name")
@@ -75,6 +77,9 @@ func (m KubeEventJsonLog) ParseFormat(ctx context.Context, item *panyl.Item) (bo
 						namespacedObjectType = fmt.Sprintf("%s:%s", apiVersion, objectType)
 						if !slices.Contains([]string{"v1", "apps/v1", "batch/v1"}, apiVersion) {
 							objectType = fmt.Sprintf("%s:%s", apiVersion, objectType)
+						}
+						if apiVersion == "batch/v1" {
+							isBatch = true
 						}
 					}
 				}
@@ -114,6 +119,10 @@ func (m KubeEventJsonLog) ParseFormat(ctx context.Context, item *panyl.Item) (bo
 				if slices.Contains(m.SkipReasons, rs) {
 					item.Metadata[panyl.MetadataSkip] = true
 				}
+			}
+
+			if isBatch {
+				category = "batch"
 			}
 
 			item.Metadata[panyl.MetadataMessage] = message
