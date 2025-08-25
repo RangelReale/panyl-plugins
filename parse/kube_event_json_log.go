@@ -14,6 +14,7 @@ const KubeEventJsonLogFormat = "cb_kube_json_log"
 // example: "{"apiVersion":"v1","count":1,"eventTime":null,"firstTimestamp":"2025-08-25T11:47:00Z","involvedObject":{"apiVersion":"batch/v1","kind":"Job","name":"server-wake-scheduler-29268707","namespace":"company-apps","resourceVersion":"1123395957","uid":"bda6fdf0-7b63-4bb3-ba8d-7a2bc3e63181"},"kind":"Event","lastTimestamp":"2025-08-25T11:47:00Z","message":"Created pod: server-wake-scheduler-29268707-qwnzj","metadata":{"creationTimestamp":"2025-08-25T11:47:00Z","name":"server-wake-scheduler-29268707.185f00096aa7f57d","namespace":"company-apps","resourceVersion":"15806623","uid":"bcb0a277-0313-443f-9a1d-8f006a3bebe7"},"reason":"SuccessfulCreate","reportingComponent":"job-controller","reportingInstance":"","source":{"component":"job-controller"},"type":"Normal"}"
 
 type KubeEventJsonLog struct {
+	NamespaceAsCategory bool
 }
 
 var _ panyl.PluginParseFormat = KubeEventJsonLog{}
@@ -54,6 +55,15 @@ func (m KubeEventJsonLog) ParseFormat(ctx context.Context, item *panyl.Item) (bo
 				message = logmessage
 			}
 
+			if ct := item.Data.IntValue("count"); ct > 1 {
+				ctmsg := fmt.Sprintf("{ct:%d}", ct)
+				if message != "" {
+					message = fmt.Sprintf("%s %s", ctmsg, message)
+				} else {
+					message = ctmsg
+				}
+			}
+
 			if involvedObject := item.Data.MapValue("involvedObject"); involvedObject != nil {
 				objectType := involvedObject.StringValue("kind")
 				objectName := involvedObject.StringValue("name")
@@ -64,10 +74,11 @@ func (m KubeEventJsonLog) ParseFormat(ctx context.Context, item *panyl.Item) (bo
 					}
 				}
 				if ns := involvedObject.StringValue("namespace"); ns != "" {
-					category = ns
-					// if objectName != "" {
-					// 	objectName = fmt.Sprintf("%s/%s", ns, objectName)
-					// }
+					if m.NamespaceAsCategory {
+						category = ns
+					} else if objectName != "" {
+						objectName = fmt.Sprintf("%s/%s", ns, objectName)
+					}
 				}
 				var objectFullname string
 				if objectType != "" {
