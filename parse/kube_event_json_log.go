@@ -3,6 +3,7 @@ package parse
 import (
 	"context"
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/RangelReale/panyl/v2"
@@ -24,10 +25,11 @@ var (
 
 func (m KubeEventJsonLog) ParseFormat(ctx context.Context, item *panyl.Item) (bool, error) {
 	if item.Metadata.StringValue(panyl.MetadataStructure) == panyl.MetadataStructureJSON {
-		if item.Data.HasValues("type", "apiVersion", "involvedObject", "kind", "lastTimestamp", "message") &&
+		if item.Data.HasValues("type", "apiVersion", "involvedObject", "kind") &&
 			item.Data.StringValue("kind") == "Event" {
-			ts, err := time.Parse(kubeEventTimestampFormat, item.Data.StringValue("lastTimestamp"))
-			if err == nil {
+			if ts, err := time.Parse(kubeEventTimestampFormat, item.Data.StringValue("eventTime")); err == nil {
+				item.Metadata[panyl.MetadataTimestamp] = ts
+			} else if ts, err := time.Parse(kubeEventTimestampFormat, item.Data.StringValue("lastTimestamp")); err == nil {
 				item.Metadata[panyl.MetadataTimestamp] = ts
 			}
 
@@ -46,24 +48,57 @@ func (m KubeEventJsonLog) ParseFormat(ctx context.Context, item *panyl.Item) (bo
 			}
 
 			var message string
+			var category string
 
 			if logmessage := item.Data.StringValue("message"); logmessage != "" {
 				message = logmessage
 			}
 
 			if involvedObject := item.Data.MapValue("involvedObject"); involvedObject != nil {
-				objectName := fmt.Sprintf("[%s:%s](%s/%s)",
-					involvedObject.StringValue("apiVersion"), involvedObject.StringValue("kind"),
-					involvedObject.StringValue("namespace"), involvedObject.StringValue("name"))
-				message = fmt.Sprintf("%s %s", objectName, message)
+				objectType := involvedObject.StringValue("kind")
+				objectName := involvedObject.StringValue("name")
+				if objectType != "" {
+					if apiVersion := involvedObject.StringValue("apiVersion"); apiVersion != "" &&
+						!slices.Contains([]string{"v1", "apps/v1", "batch/v1"}, apiVersion) {
+						objectType = fmt.Sprintf("%s/%s", apiVersion, objectType)
+					}
+				}
+				if ns := involvedObject.StringValue("namespace"); ns != "" {
+					category = ns
+					// if objectName != "" {
+					// 	objectName = fmt.Sprintf("%s/%s", ns, objectName)
+					// }
+				}
+				var objectFullname string
+				if objectType != "" {
+					objectFullname += fmt.Sprintf("(%s)", objectType)
+				}
+				if objectName != "" {
+					objectFullname += fmt.Sprintf(" [%s]", objectName)
+				}
+
+				if objectFullname != "" {
+					if message != "" {
+						message = fmt.Sprintf("%s %s", objectFullname, message)
+					} else {
+						message = objectFullname
+					}
+				}
 			}
 			if rs := item.Data.StringValue("reason"); rs != "" {
-				message = fmt.Sprintf("%s [reason:%s]", message, rs)
+				if message != "" {
+					message = fmt.Sprintf("%s [reason:%s]", message, rs)
+				} else {
+					message = rs
+				}
 			}
 
 			item.Metadata[panyl.MetadataMessage] = message
 			item.Metadata[panyl.MetadataLevel] = level
 			item.Metadata[panyl.MetadataFormat] = KubeEventJsonLogFormat
+			if category != "" {
+				item.Metadata[panyl.MetadataCategory] = category
+			}
 			return true, nil
 		}
 	}
