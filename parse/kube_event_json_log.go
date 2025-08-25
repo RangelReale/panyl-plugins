@@ -15,6 +15,8 @@ const KubeEventJsonLogFormat = "cb_kube_json_log"
 
 type KubeEventJsonLog struct {
 	NamespaceAsCategory bool
+	SkipObjects         []string
+	SkipReasons         []string
 }
 
 var _ panyl.PluginParseFormat = KubeEventJsonLog{}
@@ -67,19 +69,26 @@ func (m KubeEventJsonLog) ParseFormat(ctx context.Context, item *panyl.Item) (bo
 			if involvedObject := item.Data.MapValue("involvedObject"); involvedObject != nil {
 				objectType := involvedObject.StringValue("kind")
 				objectName := involvedObject.StringValue("name")
+				namespacedObjectType := objectType
 				if objectType != "" {
-					if apiVersion := involvedObject.StringValue("apiVersion"); apiVersion != "" &&
-						!slices.Contains([]string{"v1", "apps/v1", "batch/v1"}, apiVersion) {
-						objectType = fmt.Sprintf("%s/%s", apiVersion, objectType)
+					if apiVersion := involvedObject.StringValue("apiVersion"); apiVersion != "" {
+						namespacedObjectType = fmt.Sprintf("%s:%s", apiVersion, objectType)
+						if !slices.Contains([]string{"v1", "apps/v1", "batch/v1"}, apiVersion) {
+							objectType = fmt.Sprintf("%s:%s", apiVersion, objectType)
+						}
 					}
 				}
 				if ns := involvedObject.StringValue("namespace"); ns != "" {
 					if m.NamespaceAsCategory {
 						category = ns
 					} else if objectName != "" {
-						objectName = fmt.Sprintf("%s/%s", ns, objectName)
+						objectName = fmt.Sprintf("%s:%s", ns, objectName)
 					}
 				}
+				if namespacedObjectType != "" && slices.Contains(m.SkipObjects, namespacedObjectType) {
+					item.Metadata[panyl.MetadataSkip] = true
+				}
+
 				var objectFullname string
 				if objectType != "" {
 					objectFullname += fmt.Sprintf("(%s)", objectType)
@@ -101,6 +110,9 @@ func (m KubeEventJsonLog) ParseFormat(ctx context.Context, item *panyl.Item) (bo
 					message = fmt.Sprintf("%s [reason:%s]", message, rs)
 				} else {
 					message = rs
+				}
+				if slices.Contains(m.SkipReasons, rs) {
+					item.Metadata[panyl.MetadataSkip] = true
 				}
 			}
 
