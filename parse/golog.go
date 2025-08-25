@@ -13,6 +13,7 @@ const GoLogFormat = "go_log"
 
 // GoLog parse Golang log lines format
 type GoLog struct {
+	DisableCaller    bool
 	SourceAsCategory bool
 }
 
@@ -20,7 +21,10 @@ var _ panyl.PluginParse = GoLog{}
 
 // example: "2022-03-10T19:53:21.434Z	INFO	datadog-go/tracer.go:35	Datadog Tracer v1.28.0 ERROR: lost 2 traces"
 
-var goLogRe = regexp.MustCompile(`^(\d{4}-\d{2}-\d{2}T[^\s]+)\s+(\w+)\s+(.*\.go:\d+)\s+(.*)$`)
+var (
+	goLogRe         = regexp.MustCompile(`^(\d{4}-\d{2}-\d{2}T[^\s]+)\s+(\w+)\s+(.*\.go:\d+)\s+(.*)$`)
+	goLogNoCallerRe = regexp.MustCompile(`^(\d{4}-\d{2}-\d{2}T[^\s]+)\s+(\w+)\s+(.*)$`)
+)
 
 func (m GoLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, item *panyl.Item) (bool, error) {
 	// Only single line is supported
@@ -28,7 +32,12 @@ func (m GoLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, item *pa
 		return false, nil
 	}
 
-	matches := goLogRe.FindStringSubmatch(lines.Line())
+	var matches []string
+	if m.DisableCaller {
+		matches = goLogNoCallerRe.FindStringSubmatch(lines.Line())
+	} else {
+		matches = goLogRe.FindStringSubmatch(lines.Line())
+	}
 	if matches == nil {
 		return false, nil
 	}
@@ -39,10 +48,17 @@ func (m GoLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, item *pa
 	}
 	item.Line = ""
 
+	var source string
+	var message string
+
 	timestamp := matches[1]
 	level := matches[2]
-	source := matches[3]
-	message := matches[4]
+	if m.DisableCaller {
+		message = matches[3]
+	} else {
+		source = matches[3]
+		message = matches[4]
+	}
 
 	item.Data["timestamp"] = timestamp
 	item.Data["level"] = level
