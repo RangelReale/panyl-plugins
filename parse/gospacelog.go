@@ -37,7 +37,7 @@ func (m GoSpaceLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, ite
 		return false, nil
 	}
 
-	for _, fieldToCheck := range []string{"level", "ts"} {
+	for _, fieldToCheck := range []string{"level", "msg"} {
 		if _, ok := fields[fieldToCheck]; !ok {
 			return false, nil
 		}
@@ -57,7 +57,7 @@ func (m GoSpaceLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, ite
 	item.Metadata[panyl.MetadataFormat] = GoSpaceLogFormat
 
 looptf:
-	for _, tf := range []string{"ts", "t"} {
+	for _, tf := range []string{"ts", "t", "time"} {
 		if timestamp, ok := fields[tf]; ok {
 			ts, err := time.Parse(time.RFC3339Nano, timestamp)
 			if err == nil {
