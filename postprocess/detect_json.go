@@ -27,6 +27,8 @@ func (m DetectJSON) PostProcess(ctx context.Context, item *panyl.Item) (bool, er
 				detectTimestamp = item.Data.StringValue("timestamp")
 			} else if item.Data.HasValue("time") {
 				detectTimestamp = item.Data.StringValue("time")
+			} else if item.Data.HasValue("ts") {
+				detectTimestamp = item.Data.StringValue("ts")
 			}
 			if detectTimestamp != "" {
 				if ts, err := time.Parse(time.RFC3339, detectTimestamp); err == nil {
