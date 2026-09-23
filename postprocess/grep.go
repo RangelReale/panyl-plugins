@@ -24,6 +24,10 @@ func (g Grep) PostProcessOrder() int {
 
 func (g Grep) PostProcess(ctx context.Context, item *panyl.Item) (bool, error) {
 	for _, value := range g.Values {
+		if strings.TrimSpace(value) == "" {
+			continue
+		}
+
 		var message string
 		if msg := item.Metadata.StringValue(panyl.MetadataMessage); msg != "" {
 			message = msg

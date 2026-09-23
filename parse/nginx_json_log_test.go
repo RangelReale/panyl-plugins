@@ -54,3 +54,17 @@ func TestNGINXJSONLog(t *testing.T) {
 		assert.True(t, strings.HasPrefix(item.Metadata.StringValue(panyl.MetadataMessage), tc.message))
 	}
 }
+
+func TestNGINXJSONLogWithoutMessage(t *testing.T) {
+	ctx := context.Background()
+	item := panyl.InitItem()
+	ok, err := structure.JSON{}.ExtractStructure(ctx, panyl.ItemLines{&panyl.Item{Line: `{"http_request_path":"/","http_status_code":"200","nginx_time":"1649343527.265","now":"2022-04-07T14:58:47+00:00","request_method":"GET","http_host":"localhost:5000","uri":"/","status":"200"}`}}, item)
+	assert.NoError(t, err)
+	assert.True(t, ok)
+
+	ok, err = NGINXJsonLog{}.ParseFormat(ctx, item)
+	assert.NoError(t, err)
+	assert.True(t, ok)
+
+	assert.Equal(t, "GET localhost:5000/ [status:200]", item.Metadata.StringValue(panyl.MetadataMessage))
+}

@@ -67,7 +67,7 @@ func (m NGINXJsonLog) ParseFormat(ctx context.Context, item *panyl.Item) (bool, 
 				message = fmt.Sprintf("%s {proxy host:%s}", message, item.Data.StringValue("proxy_host"))
 			}
 
-			if logmessage := item.Data.StringValue("message"); message != "" {
+			if logmessage := item.Data.StringValue("message"); logmessage != "" {
 				message = fmt.Sprintf("%s -- %s", message, logmessage)
 			}
 

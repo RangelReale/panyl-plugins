@@ -4,21 +4,23 @@ Scope: every non-test Go file in `metadata/`, `sequence/`, `parse/`, `parseforma
 
 I confirmed every bug in the **Bugs** section by running it: a throwaway test called the plugin with the input shown and printed the result. That test was deleted afterwards.
 
+Items 1–6 have since been fixed. Each fix has a regression test that fails on the old code and passes on the new code. The Grep test is in the new file `postprocess/grep_test.go`; the others were added to the plugins' existing test files.
+
 ## Summary
 
-| # | Severity | Location | Issue |
-|---|----------|----------|-------|
-| 1 | High | `parse/javalog.go:20` | Regex accepts any word as the level, so it takes lines meant for other parsers (e.g. Postgres) |
-| 2 | High | `parse/golog.go:25` | Greedy caller group eats part of the message when the message contains `something.go:N` |
-| 3 | Medium | `parse/nginx_json_log.go:70` | Wrong variable in the condition, so a trailing ` -- ` is always appended |
-| 4 | Medium | `metadata/docker_compose.go:54` | Always drops the first character after `\|` |
-| 5 | Medium | `parse/erlanglog.go:61-69` | `critical`/`alert`/`emergency` are reported as INFO |
-| 6 | Medium | `postprocess/grep.go:42` | An empty or whitespace-only value matches every line |
-| 7 | Medium | several parsers | Timestamps without a zone are read as UTC, but those apps usually log local time |
-| 8 | Low | `parse/gospacelog.go:70-82` | Level matching is case-sensitive, so no level is set for uppercase or unknown levels |
-| 9 | Low | `metadata/kubectl_logs.go:92-115` | The pod-name heuristic can return an empty name or cut a real name segment |
-| 10 | Low | `metadata/ruby_foreman.go:40` | `TrimSpace` removes indentation (e.g. from stack traces) |
-| 11 | Low | `parse/nginx_json_log.go:12` | Format name is `cb_go_json_log` (copy-paste) |
+| # | Severity | Location | Issue | Status |
+|---|----------|----------|-------|--------|
+| 1 | High | `parse/javalog.go:20` | Regex accepts any word as the level, so it takes lines meant for other parsers (e.g. Postgres) | Fixed |
+| 2 | High | `parse/golog.go:25` | Greedy caller group eats part of the message when the message contains `something.go:N` | Fixed |
+| 3 | Medium | `parse/nginx_json_log.go:70` | Wrong variable in the condition, so a trailing ` -- ` is always appended | Fixed |
+| 4 | Medium | `metadata/docker_compose.go:54` | Always drops the first character after `\|` | Fixed |
+| 5 | Medium | `parse/erlanglog.go:61-69` | `critical`/`alert`/`emergency` are reported as INFO | Fixed |
+| 6 | Medium | `postprocess/grep.go:42` | An empty or whitespace-only value matches every line | Fixed |
+| 7 | Medium | several parsers | Timestamps without a zone are read as UTC, but those apps usually log local time | Open |
+| 8 | Low | `parse/gospacelog.go:70-82` | Level matching is case-sensitive, so no level is set for uppercase or unknown levels | Open |
+| 9 | Low | `metadata/kubectl_logs.go:92-115` | The pod-name heuristic can return an empty name or cut a real name segment | Open |
+| 10 | Low | `metadata/ruby_foreman.go:40` | `TrimSpace` removes indentation (e.g. from stack traces) | Open |
+| 11 | Low | `parse/nginx_json_log.go:12` | Format name is `cb_go_json_log` (copy-paste) | Open |
 
 The **Cleanups** section below lists smaller items.
 
@@ -27,6 +29,8 @@ The **Cleanups** section below lists smaller items.
 ## Bugs
 
 ### 1. `JavaLog` takes lines meant for other parsers — `parse/javalog.go:20`
+
+**Status: fixed**, with a regression test.
 
 ```go
 var javaLogRe = regexp.MustCompile(`^(\d{4}-\d{2}-\d{2} [^\s]+)\s+(\w+)\s+(.*)$`)
@@ -42,6 +46,8 @@ result: matched=true, Data["level"]="UTC", MetadataLevel=""   (ERROR is lost)
 Other `YYYY-MM-DD hh:mm:ss …` formats are hit the same way. **Fix:** only accept known levels, e.g. `(TRACE|DEBUG|INFO|WARN|WARNING|ERROR|FATAL|SEVERE)`. This also adds `TRACE`/`FATAL` to the level mapping (lines 58-66), which currently leaves them unset.
 
 ### 2. `GoLog` caller group is greedy — `parse/golog.go:25`
+
+**Status: fixed**, with a regression test.
 
 ```go
 goLogRe = regexp.MustCompile(`^(\d{4}-\d{2}-\d{2}T[^\s]+)\s+(\w+)\s+(.*\.go:\d+)\s+(.*)$`)
@@ -59,6 +65,8 @@ When `SourceAsCategory` is on, the category is wrong too. **Fix:** `(\S+\.go:\d+
 
 ### 3. `NGINXJsonLog` checks the wrong variable — `parse/nginx_json_log.go:70`
 
+**Status: fixed**, with a regression test.
+
 ```go
 if logmessage := item.Data.StringValue("message"); message != "" {
     message = fmt.Sprintf("%s -- %s", message, logmessage)
@@ -74,6 +82,8 @@ result: "GET / [status:200] -- "
 **Fix:** `if logmessage := …; logmessage != "" {`.
 
 ### 4. `DockerCompose` drops a character — `metadata/docker_compose.go:53-54`
+
+**Status: fixed**, with a regression test.
 
 ```go
 if len(item.Line) > matches[1] {
@@ -91,6 +101,8 @@ result: "essage"
 
 ### 5. `ErlangLog` reports critical levels as INFO — `parse/erlanglog.go:61-69`
 
+**Status: fixed**, with a regression test.
+
 Erlang `logger` levels are `emergency, alert, critical, error, warning, notice, info, debug`. Only `debug`, `warning` and `error` are mapped, and the `else` branch sends everything else to INFO:
 
 ```
@@ -101,6 +113,8 @@ result: MetadataLevel="info"
 **Fix:** map `emergency|alert|critical` to ERROR.
 
 ### 6. `Grep` with an empty value matches every line — `postprocess/grep.go:42`
+
+**Status: fixed**, with a regression test.
 
 ```go
 strings.Contains(strings.ToLower(message), strings.ToLower(strings.TrimSpace(value)))

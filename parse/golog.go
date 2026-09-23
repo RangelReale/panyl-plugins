@@ -22,7 +22,7 @@ var _ panyl.PluginParse = GoLog{}
 // example: "2022-03-10T19:53:21.434Z	INFO	datadog-go/tracer.go:35	Datadog Tracer v1.28.0 ERROR: lost 2 traces"
 
 var (
-	goLogRe         = regexp.MustCompile(`^(\d{4}-\d{2}-\d{2}T[^\s]+)\s+(\w+)\s+(.*\.go:\d+)\s+(.*)$`)
+	goLogRe         = regexp.MustCompile(`^(\d{4}-\d{2}-\d{2}T[^\s]+)\s+(\w+)\s+(\S+\.go:\d+)\s+(.*)$`)
 	goLogNoCallerRe = regexp.MustCompile(`^(\d{4}-\d{2}-\d{2}T[^\s]+)\s+(\w+)\s+(.*)$`)
 )
 

@@ -23,6 +23,12 @@ func TestGoLog(t *testing.T) {
 			category: "datadog-go/tracer",
 			message:  "Datadog Tracer v1.28.0 ERROR: lost 2 traces",
 		},
+		{
+			source:   `2022-03-10T19:53:21.434Z	ERROR	app/main.go:10	failed loading config.go:42 retrying`,
+			level:    panyl.MetadataLevelERROR,
+			category: "app/main",
+			message:  "failed loading config.go:42 retrying",
+		},
 	}
 
 	for _, tc := range tests {
