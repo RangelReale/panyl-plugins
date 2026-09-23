@@ -58,13 +58,15 @@ func (m ErlangLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, item
 		}
 	}
 
-	if level == "debug" {
+	// https://www.erlang.org/doc/apps/kernel/logger_chapter.html#log-level
+	switch level {
+	case "debug":
 		item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelDEBUG
-	} else if level == "warning" {
+	case "warning":
 		item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelWARNING
-	} else if level == "error" {
+	case "error", "critical", "alert", "emergency":
 		item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelERROR
-	} else {
+	default:
 		item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelINFO
 	}
 

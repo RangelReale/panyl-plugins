@@ -3,7 +3,6 @@ package metadata
 import (
 	"context"
 	"regexp"
-	"strings"
 
 	"github.com/RangelReale/panyl/v2"
 )
@@ -22,7 +21,7 @@ var _ panyl.PluginSequence = DockerCompose{}
 
 // example: "application    |"
 
-var dockerPrefixRE = regexp.MustCompile(`^(\w|[-])+\s+\|`)
+var dockerPrefixRE = regexp.MustCompile(`^([\w-]+)\s+\| ?`)
 
 func (m DockerCompose) ExtractMetadata(ctx context.Context, item *panyl.Item) (bool, error) {
 	matches := dockerPrefixRE.FindStringSubmatchIndex(item.Line)
@@ -34,7 +33,7 @@ func (m DockerCompose) ExtractMetadata(ctx context.Context, item *panyl.Item) (b
 		return false, nil
 	}
 
-	application := strings.TrimSpace(item.Line[matches[0] : matches[1]-1])
+	application := item.Line[matches[2]:matches[3]]
 	if len(m.ApplicationWhitelist) > 0 {
 		found := false
 		for _, app := range m.ApplicationWhitelist {
@@ -50,11 +49,7 @@ func (m DockerCompose) ExtractMetadata(ctx context.Context, item *panyl.Item) (b
 
 	item.Metadata[panyl.MetadataApplication] = application
 
-	if len(item.Line) > matches[1] {
-		item.Line = item.Line[matches[1]+1:]
-		return true, nil
-	}
-	item.Line = ""
+	item.Line = item.Line[matches[1]:]
 	return true, nil
 }
 

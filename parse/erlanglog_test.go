@@ -23,6 +23,11 @@ func TestErlangLog(t *testing.T) {
 			level:   panyl.MetadataLevelWARNING,
 			message: "not_all_kafka_partitions_connected",
 		},
+		{
+			source:  `2025-09-04T13:26:52.315705+00:00 [critical] supervisor_shutdown`,
+			level:   panyl.MetadataLevelERROR,
+			message: "supervisor_shutdown",
+		},
 	}
 
 	for _, tc := range tests {
