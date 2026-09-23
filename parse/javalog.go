@@ -10,7 +10,7 @@ import (
 
 const JavaLogFormat = "java_log"
 
-// JavaLog parse Golang log lines format
+// JavaLog parses Java log lines format
 type JavaLog struct{}
 
 var _ panyl.PluginParse = JavaLog{}
