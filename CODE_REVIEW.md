@@ -4,7 +4,7 @@ Scope: every non-test Go file in `metadata/`, `sequence/`, `parse/`, `parseforma
 
 I confirmed every bug in the **Bugs** section by running it: a throwaway test called the plugin with the input shown and printed the result. That test was deleted afterwards.
 
-Items 1–6 have since been fixed. Each fix has a regression test that fails on the old code and passes on the new code. The Grep test is in the new file `postprocess/grep_test.go`; the others were added to the plugins' existing test files.
+Items 1–11 have since been fixed. Each fix has a regression test that fails on the old code and passes on the new code. The Grep test is in the new file `postprocess/grep_test.go`; the others were added to the plugins' existing test files.
 
 ## Summary
 
@@ -16,11 +16,11 @@ Items 1–6 have since been fixed. Each fix has a regression test that fails on 
 | 4 | Medium | `metadata/docker_compose.go:54` | Always drops the first character after `\|` | Fixed |
 | 5 | Medium | `parse/erlanglog.go:61-69` | `critical`/`alert`/`emergency` are reported as INFO | Fixed |
 | 6 | Medium | `postprocess/grep.go:42` | An empty or whitespace-only value matches every line | Fixed |
-| 7 | Medium | several parsers | Timestamps without a zone are read as UTC, but those apps usually log local time | Open |
-| 8 | Low | `parse/gospacelog.go:70-82` | Level matching is case-sensitive, so no level is set for uppercase or unknown levels | Open |
-| 9 | Low | `metadata/kubectl_logs.go:92-115` | The pod-name heuristic can return an empty name or cut a real name segment | Open |
-| 10 | Low | `metadata/ruby_foreman.go:40` | `TrimSpace` removes indentation (e.g. from stack traces) | Open |
-| 11 | Low | `parse/nginx_json_log.go:12` | Format name is `cb_go_json_log` (copy-paste) | Open |
+| 7 | Medium | several parsers | Timestamps without a zone are read as UTC, but those apps usually log local time | Fixed |
+| 8 | Low | `parse/gospacelog.go:70-82` | Level matching is case-sensitive, so no level is set for uppercase or unknown levels | Fixed |
+| 9 | Low | `metadata/kubectl_logs.go:92-115` | The pod-name heuristic can return an empty name or cut a real name segment | Fixed |
+| 10 | Low | `metadata/ruby_foreman.go:40` | `TrimSpace` removes indentation (e.g. from stack traces) | Fixed |
+| 11 | Low | `parse/nginx_json_log.go:12` | Format name is `cb_go_json_log` (copy-paste) | Fixed |
 
 The **Cleanups** section below lists smaller items.
 
@@ -130,6 +130,8 @@ This is easy to hit from CLI input like `--grep "a,,b"`. **Fix:** skip values th
 
 ### 7. Timestamps without a zone are read as UTC
 
+**Status: fixed**, with regression tests. `RubyLog`, `JavaLog`, `RedisLog` and `NGINXErrorLog` have a new `Location *time.Location` field; nil keeps the old behavior (UTC). `PostgresLog` now accepts any zone: `UTC`/`GMT`, numeric offsets (`-03`, `+0530`, `+05:30`) and abbreviations (resolved with its own optional `Location`, since abbreviations are ambiguous). Milliseconds are optional.
+
 `time.Parse` with a layout that has no zone returns UTC. These formats have no zone and are normally written in the server's **local** time:
 
 - `RubyLog` (`rubylog.go:23`)
@@ -145,6 +147,8 @@ Two related points:
 
 ### 8. `GoSpaceLog` level matching is case-sensitive — `parse/gospacelog.go:70-82`
 
+**Status: fixed**, with a regression test. Levels are compared in lowercase, and `trace` and `fatal`/`panic`/`dpanic`/`crit`/`critical`/`alert`/`emerg`/`emergency` are mapped.
+
 ```
 input:  level=WARN ts=2024-12-18T14:55:27Z msg="x"
 result: MetadataLevel=""
@@ -154,6 +158,8 @@ logfmt producers vary in case (`WARN`, `Info`), and `fatal`/`panic`/`crit` are n
 
 ### 9. `KubeCtlLogs.parsePodName` edge cases — `metadata/kubectl_logs.go:92-115`
 
+**Status: fixed**, with a regression test. The suffix is only stripped when it is exactly 5 characters from the Kubernetes alphabet, and the first name segment is never stripped. A single-segment pod name now also gets the `/container` part, like every other name (before, `redis` returned just `redis`).
+
 The heuristic assumes Deployment-style pod names (`<name>-<rs-hash>-<suffix>`). Stripping hex-looking hashes is correct, because Kubernetes' pod-template-hash maps decimal digits into `[4-9bcdf]`. Two other assumptions are not:
 
 - `"deadbeef-abcd"` → strips `abcd`, then strips `deadbeef` → `ns` is empty → returns `"/c"`.
@@ -162,6 +168,8 @@ The heuristic assumes Deployment-style pod names (`<name>-<rs-hash>-<suffix>`). 
 **Suggestion:** never strip the last remaining segment. Only strip a 4-5 character suffix when it matches the Kubernetes random alphabet (`^[bcdfghjklmnpqrstvwxz2456789]{5}$`). Kubernetes suffixes are exactly 5 characters, so 4-character segments should not be stripped either.
 
 ### 10. `RubyForeman` removes indentation — `metadata/ruby_foreman.go:40`
+
+**Status: fixed**, with a regression test.
 
 ```go
 text := strings.TrimSpace(matches[3])
@@ -175,6 +183,8 @@ result: "at foo.rb:1"
 Stack-trace indentation is lost, and later sequence or parse plugins can no longer see it. **Fix:** remove only the single separator space (`strings.TrimPrefix(matches[3], " ")`).
 
 ### 11. `NGINXJsonLog` format name — `parse/nginx_json_log.go:12`
+
+**Status: fixed**, with a regression test. The format is now `nginx_json_log`. **Breaking** for consumers that compare against the string `cb_go_json_log`; code that uses the `NGINXJsonLogFormat` constant is unaffected. `KubeEventJsonLogFormat` was left as is.
 
 ```go
 const NGINXJsonLogFormat = "cb_go_json_log"

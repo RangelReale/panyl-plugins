@@ -12,6 +12,9 @@ const RubyLogFormat = "ruby_log"
 
 // RubyLog parses Ruby log lines format
 type RubyLog struct {
+	// Location is the time zone used to parse timestamps, which have no zone information.
+	// If nil, UTC is used.
+	Location *time.Location
 }
 
 // example: "I, [1999-03-03T02:34:24.895701 #19074]  INFO -- Main: info."
@@ -55,7 +58,7 @@ func (m RubyLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, item *
 	item.Metadata[panyl.MetadataMessage] = message
 
 	if timestamp != "" {
-		ts, err := time.Parse(rubyTimestampFormat, timestamp)
+		ts, err := parseInLocation(rubyTimestampFormat, timestamp, m.Location)
 		if err == nil {
 			item.Metadata[panyl.MetadataTimestamp] = ts
 		}

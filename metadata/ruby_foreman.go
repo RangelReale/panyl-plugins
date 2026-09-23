@@ -8,7 +8,7 @@ import (
 	"github.com/RangelReale/panyl/v2"
 )
 
-// RubyForeman extracts application name from the line by the roby foreman format, which is
+// RubyForeman extracts application name from the line by the ruby foreman format, which is
 // a time, followed by an application
 // name, followed by | at the beginning of the line.
 // It also signals a sequence break on lines of different applications.
@@ -37,7 +37,8 @@ func (m RubyForeman) ExtractMetadata(ctx context.Context, item *panyl.Item) (boo
 
 	// time := matches[1]
 	application := strings.TrimSpace(matches[2])
-	text := strings.TrimSpace(matches[3])
+	// only remove the separator space, keeping any indentation
+	text := strings.TrimPrefix(matches[3], " ")
 
 	if len(m.ApplicationWhitelist) > 0 {
 		found := false
@@ -53,11 +54,7 @@ func (m RubyForeman) ExtractMetadata(ctx context.Context, item *panyl.Item) (boo
 	}
 
 	item.Metadata[panyl.MetadataApplication] = application
-	if len(text) > 0 {
-		item.Line = text
-		return true, nil
-	}
-	item.Line = ""
+	item.Line = text
 	return true, nil
 }
 

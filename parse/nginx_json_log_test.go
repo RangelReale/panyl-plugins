@@ -67,4 +67,5 @@ func TestNGINXJSONLogWithoutMessage(t *testing.T) {
 	assert.True(t, ok)
 
 	assert.Equal(t, "GET localhost:5000/ [status:200]", item.Metadata.StringValue(panyl.MetadataMessage))
+	assert.Equal(t, "nginx_json_log", item.Metadata.StringValue(panyl.MetadataFormat))
 }

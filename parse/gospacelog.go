@@ -68,14 +68,17 @@ looptf:
 	}
 	isError := false
 	if level, ok := fields["level"]; ok {
-		if level == "debug" {
+		switch strings.ToLower(level) {
+		case "trace":
+			item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelTRACE
+		case "debug":
 			item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelDEBUG
-		} else if level == "info" {
+		case "info":
 			item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelINFO
-		} else if level == "warn" || level == "warning" {
+		case "warn", "warning":
 			item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelWARNING
 			isError = true
-		} else if level == "error" {
+		case "error", "err", "crit", "critical", "fatal", "panic", "dpanic", "alert", "emerg", "emergency":
 			item.Metadata[panyl.MetadataLevel] = panyl.MetadataLevelERROR
 			isError = true
 		}

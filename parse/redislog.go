@@ -12,6 +12,9 @@ const RedisLogFormat = "redis_log"
 
 // RedisLog parses Redis log lines format
 type RedisLog struct {
+	// Location is the time zone used to parse timestamps, which have no zone information.
+	// If nil, UTC is used.
+	Location *time.Location
 }
 
 // example: "21:C 13 Apr 2022 17:59:51.096 * RDB: 0 MB of memory used by copy-on-write"
@@ -58,7 +61,7 @@ func (m RedisLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, item 
 	item.Metadata[panyl.MetadataMessage] = message
 
 	if timestamp != "" {
-		ts, err := time.Parse(redisTimestampFormat, timestamp)
+		ts, err := parseInLocation(redisTimestampFormat, timestamp, m.Location)
 		if err == nil {
 			item.Metadata[panyl.MetadataTimestamp] = ts
 		}
