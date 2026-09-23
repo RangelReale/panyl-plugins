@@ -25,8 +25,8 @@ type KubeCtlLogs struct {
 	ApplicationWhitelist []string
 }
 
-var _ panyl.PluginMetadata = DockerCompose{}
-var _ panyl.PluginSequence = DockerCompose{}
+var _ panyl.PluginMetadata = KubeCtlLogs{}
+var _ panyl.PluginSequence = KubeCtlLogs{}
 
 // example: "[pod/deployment-id1-id2/container] "
 
