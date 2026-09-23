@@ -11,7 +11,11 @@ import (
 const JavaLogFormat = "java_log"
 
 // JavaLog parses Java log lines format
-type JavaLog struct{}
+type JavaLog struct {
+	// Location is the time zone used to parse timestamps, which have no zone information.
+	// If nil, UTC is used.
+	Location *time.Location
+}
 
 var _ panyl.PluginParse = JavaLog{}
 
@@ -50,7 +54,7 @@ func (m JavaLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, item *
 	item.Metadata[panyl.MetadataMessage] = message
 
 	if timestamp != "" {
-		ts, err := time.Parse(javaTimeFormat, timestamp)
+		ts, err := parseInLocation(javaTimeFormat, timestamp, m.Location)
 		if err == nil {
 			item.Metadata[panyl.MetadataTimestamp] = ts
 		}

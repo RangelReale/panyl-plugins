@@ -104,3 +104,29 @@ func requireDeepEqual(t require.TestingT, expected interface{}, actual interface
 	}
 	t.FailNow()
 }
+
+func TestGoSpaceLogLevels(t *testing.T) {
+	tests := []struct {
+		level    string
+		expected string
+	}{
+		{level: "WARN", expected: panyl.MetadataLevelWARNING},
+		{level: "Info", expected: panyl.MetadataLevelINFO},
+		{level: "trace", expected: panyl.MetadataLevelTRACE},
+		{level: "fatal", expected: panyl.MetadataLevelERROR},
+		{level: "panic", expected: panyl.MetadataLevelERROR},
+		{level: "crit", expected: panyl.MetadataLevelERROR},
+	}
+
+	for _, tc := range tests {
+		ctx := context.Background()
+		item := panyl.InitItem()
+
+		source := "level=" + tc.level + ` ts=2024-12-18T14:55:27Z msg="x"`
+		ok, err := GoSpaceLog{}.ExtractParse(ctx, panyl.ItemLines{&panyl.Item{Line: source}}, item)
+		require.NoError(t, err)
+		require.True(t, ok)
+
+		assert.Equal(t, tc.expected, item.Metadata.StringValue(panyl.MetadataLevel), tc.level)
+	}
+}

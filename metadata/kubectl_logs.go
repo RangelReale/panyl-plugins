@@ -40,6 +40,8 @@ var _ panyl.PluginSequence = KubeCtlLogs{}
 var (
 	kubeCtlLogsPrefixRE = regexp.MustCompile(`^\[([^\]]+)\] `)
 	kubeCtlLogsHexRE    = regexp.MustCompile(`[^0-9A-Fa-f]`)
+	// random pod name suffix, generated from the Kubernetes "safe" alphabet (k8s.io/apimachinery/pkg/util/rand)
+	kubeCtlLogsSuffixRE = regexp.MustCompile(`^[bcdfghjklmnpqrstvwxz2456789]{5}$`)
 )
 
 func (m KubeCtlLogs) ExtractMetadata(ctx context.Context, item *panyl.Item) (bool, error) {
@@ -92,18 +94,18 @@ func (m KubeCtlLogs) IsPanylPlugin() {}
 func (m KubeCtlLogs) parsePodName(name string, containerName string) string {
 	ns := strings.Split(name, "-")
 	if len(ns) < 2 {
-		return name
+		return fmt.Sprintf("%s/%s", name, containerName)
 	}
 
-	// last item may have 4 or 5 chars
-	lastLen := len(ns[len(ns)-1])
-	if lastLen == 4 || lastLen == 5 {
+	// last item removed only if it is a 5-char random suffix
+	if kubeCtlLogsSuffixRE.MatchString(ns[len(ns)-1]) {
 		ns = slices.Delete(ns, len(ns)-1, len(ns))
 	}
 
-	// last item removed only if 8 or 10 chars, and a hex string
+	// last item removed only if 8 to 10 chars, and a hex string.
+	// Never remove the first item, which is always part of the name.
 	lastPrev := ns[len(ns)-1]
-	if len(lastPrev) >= 8 && len(lastPrev) <= 10 {
+	if len(ns) > 1 && len(lastPrev) >= 8 && len(lastPrev) <= 10 {
 		// "true" means that non-hex charts exist
 		if !kubeCtlLogsHexRE.MatchString(lastPrev) {
 			// s is a valid hex string

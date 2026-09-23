@@ -12,6 +12,9 @@ const NGINXErrorLogFormat = "nginx_error_log"
 
 // NGINXErrorLog parses NGINX log lines format
 type NGINXErrorLog struct {
+	// Location is the time zone used to parse timestamps, which have no zone information.
+	// If nil, UTC is used.
+	Location *time.Location
 }
 
 // 2022/03/10 20:20:48 [error] 62#62: *70 invalid URL prefix in "", client: 127.0.0.1, server: , request: "GET / HTTP/1.1", host: "localhost:8080", referrer: "http://localhost:8080"
@@ -56,7 +59,7 @@ func (m NGINXErrorLog) ExtractParse(ctx context.Context, lines panyl.ItemLines, 
 	item.Metadata[panyl.MetadataMessage] = message
 
 	if timestamp != "" {
-		ts, err := time.Parse(nginxErrorTimestampFormat, timestamp)
+		ts, err := parseInLocation(nginxErrorTimestampFormat, timestamp, m.Location)
 		if err == nil {
 			item.Metadata[panyl.MetadataTimestamp] = ts
 		}
